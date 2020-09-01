@@ -1,0 +1,109 @@
+body{
+    margin: 0;
+}
+#cxk{
+    width: 100%;
+    height: 200px;
+}
+#boxLeft{
+    width: 200px;
+    height: 100%;
+    float: left;
+}
+#boxRight{
+    width: 200px;
+    height: 100%;
+    float: left;
+    background-color: lightgrey;
+}
+#title{
+    width: 100%;
+    height: 50px;
+    text-align: center;
+    font-size: 25px;
+    line-height: 50px;
+}
+#intro{
+    width: 100%;
+    height: 150px;
+}
+.hobby{
+    box-sizing: border-box;
+    padding: 10px;
+    margin: 10px;
+    background-color: white;
+    border-radius: 5px;
+    float: left;
+    color: orange;
+    border: 1px solid orange;
+}
+#myFirstLayout{
+    width: 1000px;
+    height: 600px;
+    background-color: grey;
+    float: left;
+}
+#upper{
+    width: 100%;
+    height: 120px;
+    background-color: red;
+}
+#lower{
+    width: 100%;
+    height: 480px;
+    background-color: burlywood;
+}
+#left{
+    width: 70%;
+    height: 100%;
+    background-color: cadetblue;
+    float: left;
+}
+#right{
+    width: 30%;
+    height: 100%;
+    background-color: orange;
+    float: right;
+}
+#box1{
+    width: 100%;
+    height: 120px;
+    background-color: skyblue;
+}
+#box2{
+    width: 100%;
+    height: 360px;
+    background-color: pink;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+#box3{
+    width: 100%;
+    height: 40px;
+    background-color: #3c3c3c;
+}
+#box4{
+    width: 100%;
+    height: 80px;
+    background-color: white;
+}
+.menu{
+    width: -webkit-calc(100%/7);
+    height: 100%;
+ /*   border: 0px solid black;*/
+    float: left;
+    box-sizing: border-box;
+    text-align: center;
+}
+.menu a{
+ /*   text-align: center;*/
+    line-height: 80px;
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+    font-size: 20px;
+}
+.menu a:hover{
+    color: red;
+}
