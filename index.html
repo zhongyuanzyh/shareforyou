@@ -17,7 +17,8 @@
                 success: function (data) {
 		    console.log(data);
         $("#converter").hide();
-        $("#downloadContent a")[0].innerHTML = data.download_url;
+        $("#downloadContent a")[0].innerHTML = data.video_info.title;
+        $("#downloadLink a").attr("href",data.download_url);
         $("#downloadContent").show();
 		    /*$("#converter form #submit").hide();*/
                 },
