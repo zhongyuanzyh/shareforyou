@@ -56,7 +56,7 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("%v", vi)
 	mu.VideoInfo = vi
-	mu.DownloadUrl = "http://shareforyou.online/youtube-dl/" + vi.Title + ".mp3"
+	mu.DownloadUrl = "/youtube-dl/" + vi.Title + ".mp3"
 	rsp, _ := json.Marshal(mu)
 	//_, _ = io.WriteString(w, youtubeURL+"  "+mediaFormat)
 	w.Header().Add("Content-Type", "application/json; charset=utf-8")
