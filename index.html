@@ -16,10 +16,8 @@
                 data: $('#form1').serialize(),
                 success: function (data) {
 		    console.log(data);
-		    $("#ajaxContent")[0].innerHTML = data.duration;
-		    $("#ajaxContent").show();
         $("#converter").hide();
-        $("#downloadContent a")[0].innerHTML = data.uploader;
+        $("#downloadContent a")[0].innerHTML = data.download_url;
         $("#downloadContent").show();
 		    /*$("#converter form #submit").hide();*/
                 },
@@ -73,9 +71,6 @@
         <p>我们的服务是免费的，不需要任何软件或注册。使用我们的服务即表示您接受我们的使用条款。</p>
         <p>要转换视频，请将YouTube视频URL复制到我们的转换器中，选择一种格式，然后单击转换按钮。转换完成后，您可以通过单击下载按钮来下载文件。</p>
         <p>请享用！希望您喜欢我们的服务。</p>
-    </div>
-    <div id="ajaxContent">
-	这是一个块儿
     </div>
     </div>
     <div id="footer">

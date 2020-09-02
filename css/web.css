@@ -35,9 +35,6 @@ body{
     border-top-right-radius: 3px;
     padding: 0 3.3% 20px 3.3%;
 }
-#ajaxContent{
-    display: none;
-}
 #downloadContent{
 	display: none;
 	width: 93%;

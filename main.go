@@ -17,6 +17,11 @@ type VideoInfo struct {
 	Description   string `json:"description"`
 }
 
+type MediaUrl struct {
+	VideoInfo   VideoInfo `json:"video_info"`
+	DownloadUrl string    `json:"download_url"`
+}
+
 func main() {
 	http.HandleFunc("/mpx", youtubeMp3)
 	mux := http.NewServeMux()
@@ -33,8 +38,10 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 		log.Printf("download info failed!!!%v", err)
 	}
 	var vi VideoInfo
+	var mu MediaUrl
 	var cmd *exec.Cmd
 	_ = json.Unmarshal(out, &vi)
+
 	switch mediaFormat {
 	case "mp4":
 		cmd = exec.Command("youtube-dl", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", youtubeURL, "-o", "/data/youtube-dl/"+vi.Title+".mp4")
@@ -43,10 +50,15 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	}
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	_ = cmd.Run()
-	log.Printf("%v",vi)
-	rsp,_ :=json.Marshal(vi)
+	err = cmd.Run()
+	if err != nil {
+		log.Printf("命令执行有错误%v", err)
+	}
+	log.Printf("%v", vi)
+	mu.VideoInfo = vi
+	mu.DownloadUrl = "http://shareforyou.online/youtube-dl/" + vi.Title + ".mp3"
+	rsp, _ := json.Marshal(mu)
 	//_, _ = io.WriteString(w, youtubeURL+"  "+mediaFormat)
-	w.Header().Add("Content-Type","application/json; charset=utf-8")
-	_,_ =w.Write(rsp)
+	w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	_, _ = w.Write(rsp)
 }
