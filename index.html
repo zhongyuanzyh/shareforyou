@@ -18,7 +18,10 @@
 		    console.log(data);
 		    $("#ajaxContent")[0].innerHTML = data.duration;
 		    $("#ajaxContent").show();
-		    $("#converter form #submit").hide();
+        $("converter").hide();
+        $("#downloadContent a")[0].innerHTML = data.uploader;
+        $("#downloadContent").show();
+		    /*$("#converter form #submit").hide();*/
                 },
                 error : function(request) {
                     alert("异常！");
@@ -54,6 +57,9 @@
                     </label>MP4
                 </div>
             </form>
+            </div>
+            <div id="downloadContent">
+              <a href=""></a>  
             </div>
         </div>
     <div id="separator"></div>

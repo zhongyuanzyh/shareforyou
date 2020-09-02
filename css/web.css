@@ -38,6 +38,9 @@ body{
 #ajaxContent{
     display: none;
 }
+#downloadContent{
+	display: none;
+}
 #title{
     color: #0087cf;
     font-size: 15px;
