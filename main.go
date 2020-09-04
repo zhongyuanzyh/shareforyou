@@ -61,7 +61,7 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 		default:
 			cmd = exec.Command("youtube-dl", "-x", "--audio-format", "mp3", youtubeURL, "-o", "/data/youtube-dl/"+vi.Title+".mp3")
 		}
-	}else if vi.Extractor == "BiliBili" {
+	} else if vi.Extractor == "BiliBili" {
 		switch mediaFormat {
 		case "mp4":
 			cmd = exec.Command("youtube-dl", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", youtubeURL, "-o", "/data/youtube-dl/"+vi.Title+vi.Ext)
@@ -82,7 +82,7 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	if vi.Extractor == "BiliBili" {
 		switch mediaFormat {
 		case "mp4":
-			mi.DownloadUrl = "/youtube-dl/" + vi.Title + vi.Title+vi.Ext
+			mi.DownloadUrl = "/youtube-dl/" + vi.Title + "." + vi.Ext
 		default:
 			mi.DownloadUrl = "/youtube-dl/" + vi.Title + ".m4a"
 		}
