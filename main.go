@@ -79,7 +79,22 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("%v", vi)
 	mi.VideoInfo = vi
-	mi.DownloadUrl = "/youtube-dl/" + vi.Title + ".mp3"
+	if vi.Extractor == "BiliBili" {
+		switch mediaFormat {
+		case "mp4":
+			mi.DownloadUrl = "/youtube-dl/" + vi.Title + vi.Title+vi.Ext
+		default:
+			mi.DownloadUrl = "/youtube-dl/" + vi.Title + ".m4a"
+		}
+	} else if vi.Extractor == "youtube" {
+		switch mediaFormat {
+		case "mp4":
+			mi.DownloadUrl = "/youtube-dl/" + vi.Title + ".mp4"
+		default:
+			mi.DownloadUrl = "/youtube-dl/" + vi.Title + ".mp3"
+		}
+	}
+
 RESP:
 	rsp, _ := json.Marshal(mi)
 	//_, _ = io.WriteString(w, youtubeURL+"  "+mediaFormat)
