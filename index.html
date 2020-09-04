@@ -15,7 +15,7 @@
             var reg = /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?/;
             var objExp=new RegExp(reg);
             var res = objExp.test($("#input").val());
-            if (res == false){
+            if (res === false){
                 console.log(res)
                 alert("请输入http或者https开头的视频地址。");
                 return false;
@@ -56,7 +56,7 @@
             <div id="converter">
                 <div id="title">请输入YouTube视频链接地址</div>
             <form id="form1" onsubmit="return false" action="##" method="post">
-                <label for="input"></label><input id="input" type="text" name="video" autocomplete="off" autofocus>
+                <input id="input" type="text" name="video" autocomplete="off" value="" autofocus>
                 <input id="submit" type="button" value="开始转换" onclick="convert()">
                 <div id="checkbox">
                     请选择转换结果的格式：

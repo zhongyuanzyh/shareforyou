@@ -9,10 +9,11 @@ import (
 )
 
 const (
-	CanNotGetMediaInfo  = 101
+	CanNotGetMediaInfo    = 101
 	YoutubeDLCommandError = 102
-	ConvertSuccess = 103
+	ConvertSuccess        = 103
 )
+
 type VideoInfo struct {
 	UploadDate    string `json:"upload_date"`
 	VideoDuration int    `json:"duration"`
@@ -25,7 +26,7 @@ type VideoInfo struct {
 type MediaInfo struct {
 	VideoInfo   VideoInfo `json:"video_info"`
 	DownloadUrl string    `json:"download_url"`
-	ErrCode int	`json:"error_code"`
+	ErrCode     int       `json:"error_code"`
 }
 
 func main() {
