@@ -8,13 +8,14 @@
     <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
     <script type="text/javascript">
         function convert() {
-            if ($("input[type=text]").val() =="") {
+            if ($("input[type=text]").val() ==="") {
                 alert("请输入视频连接地址。");
                 return false;
             }
             let url = document.getElementById("input").value;
             let reg = /^([hH][tT]{2}[pP]:\/\/|[hH][tT]{2}[pP][sS]:\/\/)(([A-Za-z0-9-~]+)\.)+([A-Za-z0-9-~\/])+$/;
-            if (reg.test(url)){
+            if (!reg.test(url)){
+                console.log(reg.test(url))
                 alert("请输入http或者https开头的视频网址。");
                 return false;
             }
