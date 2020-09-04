@@ -21,6 +21,7 @@ type VideoInfo struct {
 	Ext           string `json:"ext"`
 	Uploader      string `json:"uploader"`
 	Description   string `json:"description"`
+	Extractor     string `json:"extractor"`
 }
 
 type MediaInfo struct {
@@ -53,12 +54,20 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = json.Unmarshal(out, &vi)
-
-	switch mediaFormat {
-	case "mp4":
-		cmd = exec.Command("youtube-dl", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", youtubeURL, "-o", "/data/youtube-dl/"+vi.Title+".mp4")
-	default:
-		cmd = exec.Command("youtube-dl", "-x", "--audio-format", "mp3", youtubeURL, "-o", "/data/youtube-dl/"+vi.Title+".mp3")
+	if vi.Extractor == "youtube" {
+		switch mediaFormat {
+		case "mp4":
+			cmd = exec.Command("youtube-dl", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", youtubeURL, "-o", "/data/youtube-dl/"+vi.Title+".mp4")
+		default:
+			cmd = exec.Command("youtube-dl", "-x", "--audio-format", "mp3", youtubeURL, "-o", "/data/youtube-dl/"+vi.Title+".mp3")
+		}
+	}else if vi.Extractor == "BiliBili" {
+		switch mediaFormat {
+		case "mp4":
+			cmd = exec.Command("youtube-dl", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", youtubeURL, "-o", "/data/youtube-dl/"+vi.Title+vi.Ext)
+		default:
+			cmd = exec.Command("youtube-dl", "-x", "--audio-format", "m4a", youtubeURL, "-o", "/data/youtube-dl/"+vi.Title+".m4a")
+		}
 	}
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
