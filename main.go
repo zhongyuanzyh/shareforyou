@@ -8,6 +8,11 @@ import (
 	"os/exec"
 )
 
+const (
+	CanNotGetMediaInfo  = 101
+	YoutubeDLCommandError = 102
+	ConvertSuccess = 103
+)
 type VideoInfo struct {
 	UploadDate    string `json:"upload_date"`
 	VideoDuration int    `json:"duration"`
@@ -17,9 +22,10 @@ type VideoInfo struct {
 	Description   string `json:"description"`
 }
 
-type MediaUrl struct {
+type MediaInfo struct {
 	VideoInfo   VideoInfo `json:"video_info"`
 	DownloadUrl string    `json:"download_url"`
+	ErrCode int	`json:"error_code"`
 }
 
 func main() {
@@ -29,6 +35,11 @@ func main() {
 	_ = http.ListenAndServe(":8888", mux)
 }
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
+	var vi VideoInfo
+	var mi MediaInfo
+	var cmd *exec.Cmd
+
+	mi.ErrCode = ConvertSuccess
 	_ = r.ParseForm()
 	youtubeURL := r.Form.Get("video")
 	mediaFormat := r.Form.Get("format")
@@ -36,10 +47,10 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	out, err := cmdDetail.CombinedOutput()
 	if err != nil {
 		log.Printf("download info failed!!!%v", err)
+		mi.ErrCode = CanNotGetMediaInfo
+		goto RESP
 	}
-	var vi VideoInfo
-	var mu MediaUrl
-	var cmd *exec.Cmd
+
 	_ = json.Unmarshal(out, &vi)
 
 	switch mediaFormat {
@@ -53,11 +64,14 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	err = cmd.Run()
 	if err != nil {
 		log.Printf("命令执行有错误%v", err)
+		mi.ErrCode = YoutubeDLCommandError
+		goto RESP
 	}
 	log.Printf("%v", vi)
-	mu.VideoInfo = vi
-	mu.DownloadUrl = "/youtube-dl/" + vi.Title + ".mp3"
-	rsp, _ := json.Marshal(mu)
+	mi.VideoInfo = vi
+	mi.DownloadUrl = "/youtube-dl/" + vi.Title + ".mp3"
+RESP:
+	rsp, _ := json.Marshal(mi)
 	//_, _ = io.WriteString(w, youtubeURL+"  "+mediaFormat)
 	w.Header().Add("Content-Type", "application/json; charset=utf-8")
 	_, _ = w.Write(rsp)

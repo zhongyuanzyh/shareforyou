@@ -17,7 +17,7 @@
             var res = objExp.test($("#input").val());
             if (res == false){
                 console.log(res)
-                alert("请输入http或者https开头的视频网址。");
+                alert("请输入http或者https开头的视频地址。");
                 return false;
             }
             $.ajax({
@@ -27,12 +27,12 @@
                 url: "/mpx" ,//url
                 data: $('#form1').serialize(),
                 success: function (data) {
-		    console.log(data);
-        $("#converter").hide();
-        $("#downloadContent a")[0].innerHTML = data.video_info.title;
-        $("#downloadLink a").attr("href",data.download_url);
-        $("#downloadContent").show();
-		    /*$("#converter form #submit").hide();*/
+                    console.log(data);
+                    $("#converter").hide();
+                    $("#downloadContent a")[0].innerHTML = data.video_info.title;
+                    $("#downloadLink a").attr("href",data.download_url);
+                    $("#downloadContent").show();
+                        /*$("#converter form #submit").hide();*/
                 },
                 error : function(request) {
                     alert("异常！");
