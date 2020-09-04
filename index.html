@@ -12,6 +12,12 @@
                 alert("请输入视频连接地址。");
                 return false;
             }
+            let url = document.getElementById("input").value;
+            let reg = /^([hH][tT]{2}[pP]:\/\/|[hH][tT]{2}[pP][sS]:\/\/)(([A-Za-z0-9-~]+)\.)+([A-Za-z0-9-~\/])+$/;
+            if (!reg.test(url)){
+                alert("请输入http或者https开头的视频网址。");
+                return false;
+            }
             $.ajax({
                 //几个参数需要注意一下
                 type: "POST",//方法类型
@@ -48,7 +54,7 @@
             <div id="converter">
                 <div id="title">请输入YouTube视频链接地址</div>
             <form id="form1" onsubmit="return false" action="##" method="post">
-                <label for="input"></label><input id="input" type="url" name="video" autocomplete="off" autofocus required>
+                <label for="input"></label><input id="input" type="text" name="video" autocomplete="off" autofocus>
                 <input id="submit" type="button" value="开始转换" onclick="convert()">
                 <div id="checkbox">
                     请选择转换结果的格式：
