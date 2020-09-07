@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -28,6 +29,7 @@ type MediaInfo struct {
 	VideoInfo   VideoInfo `json:"video_info"`
 	DownloadUrl string    `json:"download_url"`
 	ErrCode     int       `json:"error_code"`
+	ProcessPercent string	`json:"process_percentage"`
 }
 
 func main() {
@@ -36,15 +38,46 @@ func main() {
 	mux.HandleFunc("/mpx", youtubeMp3)
 	_ = http.ListenAndServe(":8888", mux)
 }
+
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	var vi VideoInfo
 	var mi MediaInfo
 	var cmd *exec.Cmd
 
+
+	//go func(){
+	//	for {
+	//		if vi.VideoDuration == 0 {
+	//			log.Print("没有文件进来。。。")
+	//			w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	//			_,_ = w.Write([]byte(`ok`))
+	//		}
+	//	}
+	//}()
+
 	mi.ErrCode = ConvertSuccess
 	_ = r.ParseForm()
 	youtubeURL := r.Form.Get("video")
 	mediaFormat := r.Form.Get("format")
+
+	cmd = exec.Command("youtube-dl","-g","-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", youtubeURL)
+	stdout,err :=cmd.StdoutPipe()
+	if err !=nil{
+		log.Print("命令输出到管道失败",err)
+	}
+	defer stdout.Close()
+	err = cmd.Start()
+	if err !=nil{
+		log.Print("命令执行失败错误",err)
+	}
+	opBytes,err := ioutil.ReadAll(stdout)
+	if err !=nil{
+		log.Print("读取命令执行结果错误",err)
+	}else{
+		log.Println(opBytes)
+	}
+
+
 	cmdDetail := exec.Command("youtube-dl", "--youtube-skip-dash-manifest", "--skip-download", "--print-json", youtubeURL)
 	out, err := cmdDetail.CombinedOutput()
 	if err != nil {
