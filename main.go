@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"strconv"
+	"strings"
 )
 
 const (
@@ -74,7 +76,21 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	if err !=nil{
 		log.Print("读取命令执行结果错误",err)
 	}else{
-		log.Println(opBytes)
+		log.Println("获取的实际视频音频地址是",string(opBytes))
+		s :=strings.Split(string(opBytes),"\n")
+		client :=new(http.Client)
+		for i :=0;i <2;i++{
+			resp,err := client.Get(s[i])
+			if err !=nil{
+				log.Print("获取文件信息失败",err)
+			}
+			var fsize int64
+			fsize,err = strconv.ParseInt(resp.Header.Get("Content-Length"),10,32)
+			if err !=nil{
+				log.Print("获取文件大小失败",err)
+			}
+			log.Print("文件大小是：",fsize)
+		}
 	}
 
 
