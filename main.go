@@ -28,10 +28,11 @@ type VideoInfo struct {
 }
 
 type MediaInfo struct {
-	VideoInfo   VideoInfo `json:"video_info"`
-	DownloadUrl string    `json:"download_url"`
-	ErrCode     int       `json:"error_code"`
-	ProcessPercent string	`json:"process_percentage"`
+	VideoInfo      VideoInfo `json:"video_info"`
+	DownloadUrl    string    `json:"download_url"`
+	ErrCode        int       `json:"error_code"`
+	ProcessPercent string    `json:"process_percentage"`
+	FileSize       []int64   `json:"file_size"`
 }
 
 func main() {
@@ -45,7 +46,6 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	var vi VideoInfo
 	var mi MediaInfo
 	var cmd *exec.Cmd
-
 
 	//go func(){
 	//	for {
@@ -62,36 +62,39 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	youtubeURL := r.Form.Get("video")
 	mediaFormat := r.Form.Get("format")
 
-	cmd = exec.Command("youtube-dl","-g","-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", youtubeURL)
-	stdout,err :=cmd.StdoutPipe()
-	if err !=nil{
-		log.Print("命令输出到管道失败",err)
+	cmd = exec.Command("youtube-dl", "-g", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", youtubeURL)
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		log.Print("命令输出到管道失败", err)
 	}
 	defer stdout.Close()
 	err = cmd.Start()
-	if err !=nil{
-		log.Print("命令执行失败错误",err)
+	if err != nil {
+		log.Print("命令执行失败错误", err)
 	}
-	opBytes,err := ioutil.ReadAll(stdout)
-	if err !=nil{
-		log.Print("读取命令执行结果错误",err)
-	}else{
-		log.Println("获取的实际视频音频地址是",string(opBytes))
-		s :=strings.Split(string(opBytes),"\n")
-		client :=new(http.Client)
-		for i :=0;i <2;i++{
-			resp,err := client.Get(s[i])
-			if err !=nil{
-				log.Print("获取文件信息失败",err)
+	opBytes, err := ioutil.ReadAll(stdout)
+	if err != nil {
+		log.Print("读取命令执行结果错误", err)
+	} else {
+		log.Println("获取的实际视频音频地址是", string(opBytes))
+		s := strings.Split(string(opBytes), "\n")
+		client := new(http.Client)
+		for i := 0; i < 2; i++ {
+			resp, err := client.Get(s[i])
+			if err != nil {
+				log.Print("获取文件信息失败", err)
 			}
 			var fsize int64
-			fsize,err = strconv.ParseInt(resp.Header.Get("Content-Length"),10,32)
-			if err !=nil{
-				log.Print("获取文件大小失败",err)
+			fsize, err = strconv.ParseInt(resp.Header.Get("Content-Length"), 10, 32)
+			if err != nil {
+				log.Print("获取文件大小失败", err)
 			}
-			log.Print("文件大小是：",fsize)
+			log.Print("文件大小是：", fsize)
+			mi.FileSize = append(mi.FileSize,fsize)
+			resp.Body.Close()
 		}
 	}
+
 
 
 	cmdDetail := exec.Command("youtube-dl", "--youtube-skip-dash-manifest", "--skip-download", "--print-json", youtubeURL)
