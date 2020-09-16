@@ -55,18 +55,18 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	var mi MediaInfo
 	var cmd *exec.Cmd
 
-	go func(){
-		for {
-			if vi.VideoDuration != 0 {
-				log.Print("file coming...")
-				fs := getFileSize(mi.FileSize)
-				fi,_ :=os.Stat("/data/youtube-dl/"+vi.Title+".mp3")
-				progressRation := fi.Size()/fs * 100
-				w.Header().Add("Content-Type", "application/json; charset=utf-8")
-				_,_ = w.Write([]byte(string(progressRation)))
-			}
-		}
-	}()
+	//go func(){
+	//	for {
+	//		if vi.VideoDuration != 0 {
+	//			log.Print("file coming...")
+	//			fs := getFileSize(mi.FileSize)
+	//			fi,_ :=os.Stat("/data/youtube-dl/"+vi.Title+".mp3")
+	//			progressRation := fi.Size()/fs * 100
+	//			w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	//			_,_ = w.Write([]byte(string(progressRation)))
+	//		}
+	//	}
+	//}()
 
 	mi.ErrCode = ConvertSuccess
 	_ = r.ParseForm()
