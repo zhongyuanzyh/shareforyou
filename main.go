@@ -102,6 +102,9 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 			}
 			log.Print("文件大小是：", fsize)
 			mi.FileSize = append(mi.FileSize, fsize)
+			for _,v :=range mi.FileSize{
+				log.Print("获取的文件大小是",v)
+			}
 			resp.Body.Close()
 		}
 	}
