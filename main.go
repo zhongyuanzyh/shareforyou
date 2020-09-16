@@ -55,25 +55,28 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	var mi MediaInfo
 	var cmd *exec.Cmd
 
-	//go func(){
-	//	for {
-	//		if vi.VideoDuration != 0 {
-	//			log.Print("file coming...")
-	//			fs := getFileSize(mi.FileSize)
-	//			fi,_ :=os.Stat("/data/youtube-dl/"+vi.Title+".mp3")
-	//			progressRation := fi.Size()/fs * 100
-	//			w.Header().Add("Content-Type", "application/json; charset=utf-8")
-	//			_,_ = w.Write([]byte(string(progressRation)))
-	//		}
-	//	}
-	//}()
+	go func(){
+		for {
+			if vi.VideoDuration != 0 {
+				log.Print("file coming...")
+				fs := getFileSize(mi.FileSize)
+				fi,_ :=os.Stat("/data/youtube-dl/"+vi.Title+".mp3")
+				//fi,_:=os.Stat("/data/youtube-dl/"+vi.Title+".m4a")
+				progressRation := fi.Size()/fs * 100
+				w.Header().Add("Content-Type", "application/json; charset=utf-8")
+				_,_ = w.Write([]byte(string(progressRation)))
+			}else{
+				log.Print("还没有拿到文件的时长")
+			}
+		}
+	}()
 
 	mi.ErrCode = ConvertSuccess
 	_ = r.ParseForm()
 	youtubeURL := r.Form.Get("video")
 	mediaFormat := r.Form.Get("format")
 
-	cmd = exec.Command("youtube-dl", "-g", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", youtubeURL)
+	cmd = exec.Command("youtube-dl", "-g", "--proxy","socks5://127.0.0.1:1080/","-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", youtubeURL)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Print("命令输出到管道失败", err)
