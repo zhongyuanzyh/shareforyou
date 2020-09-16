@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -35,6 +36,10 @@ type MediaInfo struct {
 	FileSize       []int64   `json:"file_size"`
 }
 
+var vi VideoInfo
+var mi MediaInfo
+var cmd *exec.Cmd
+
 func main() {
 	http.HandleFunc("/mpx", youtubeMp3)
 	mux := http.NewServeMux()
@@ -42,31 +47,59 @@ func main() {
 	_ = http.ListenAndServe(":8888", mux)
 }
 
-func getFileSize(s []int64) int64{
+func getFileSize(s []int64) int64 {
 	var sum int64 = 0
-	for _,v :=range s{
+	for _, v := range s {
 		sum += v
 	}
 	return sum
 }
 
-func youtubeMp3(w http.ResponseWriter, r *http.Request) {
-	var vi VideoInfo
-	var mi MediaInfo
-	var cmd *exec.Cmd
-
-	go func(){
-		for {
-			if vi.VideoDuration != 0 {
-				log.Print("file coming...")
-				fs := getFileSize(mi.FileSize)
-				fi,_ :=os.Stat("/data/youtube-dl/"+vi.Title+".mp3")
-				progressRation := fi.Size()/fs * 100
-				w.Header().Add("Content-Type", "application/json; charset=utf-8")
-				_,_ = w.Write([]byte(string(progressRation)))
-			}
+func timerTask(second int, f func()) {
+	timer1 := time.NewTicker(time.Duration(second) * time.Second)
+	for {
+		select {
+		case <-timer1.C:
+			f()
 		}
-	}()
+		time.Sleep(100 * time.Millisecond)
+	}
+}
+
+func monitorFileSize() {
+	if vi.VideoDuration != 0 {
+		log.Print("file coming...")
+		fs := getFileSize(mi.FileSize)
+		fi, _ := os.Stat("/data/youtube-dl/" + vi.Title + ".mp3")
+		log.Printf("获取的大小分别是：%v---%v",fs,fi.Size())
+		//fi,_:=os.Stat("/data/youtube-dl/"+vi.Title+".m4a")
+		progressRation := fi.Size() / fs * 100
+		//w.Header().Add("Content-Type", "application/json; charset=utf-8")
+		//_, _ = w.Write([]byte(string(progressRation)))
+		log.Print(progressRation)
+	} else {
+		log.Print("还没有拿到文件的时长")
+	}
+}
+
+func youtubeMp3(w http.ResponseWriter, r *http.Request) {
+	go timerTask(1, monitorFileSize)
+
+	//go func(){
+	//	for {
+	//		if vi.VideoDuration != 0 {
+	//			log.Print("file coming...")
+	//			fs := getFileSize(mi.FileSize)
+	//			fi,_ :=os.Stat("/data/youtube-dl/"+vi.Title+".mp3")
+	//			//fi,_:=os.Stat("/data/youtube-dl/"+vi.Title+".m4a")
+	//			progressRation := fi.Size()/fs * 100
+	//			w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	//			_,_ = w.Write([]byte(string(progressRation)))
+	//		}else{
+	//			log.Print("还没有拿到文件的时长")
+	//		}
+	//	}
+	//}()
 
 	mi.ErrCode = ConvertSuccess
 	_ = r.ParseForm()
@@ -102,6 +135,9 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 			}
 			log.Print("文件大小是：", fsize)
 			mi.FileSize = append(mi.FileSize, fsize)
+			for _, v := range mi.FileSize {
+				log.Print("获取的文件大小是", v)
+			}
 			resp.Body.Close()
 		}
 	}
