@@ -42,20 +42,31 @@ func main() {
 	_ = http.ListenAndServe(":8888", mux)
 }
 
+func getFileSize(s []int64) int64{
+	var sum int64 = 0
+	for _,v :=range s{
+		sum += v
+	}
+	return sum
+}
+
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	var vi VideoInfo
 	var mi MediaInfo
 	var cmd *exec.Cmd
 
-	//go func(){
-	//	for {
-	//		if vi.VideoDuration == 0 {
-	//			log.Print("没有文件进来。。。")
-	//			w.Header().Add("Content-Type", "application/json; charset=utf-8")
-	//			_,_ = w.Write([]byte(`ok`))
-	//		}
-	//	}
-	//}()
+	go func(){
+		for {
+			if vi.VideoDuration != 0 {
+				log.Print("file coming...")
+				fs := getFileSize(mi.FileSize)
+				fi,_ :=os.Stat("/data/youtube-dl/"+vi.Title+".mp3")
+				progressRation := fi.Size()/fs * 100
+				w.Header().Add("Content-Type", "application/json; charset=utf-8")
+				_,_ = w.Write([]byte(string(progressRation)))
+			}
+		}
+	}()
 
 	mi.ErrCode = ConvertSuccess
 	_ = r.ParseForm()
@@ -90,12 +101,10 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 				log.Print("获取文件大小失败", err)
 			}
 			log.Print("文件大小是：", fsize)
-			mi.FileSize = append(mi.FileSize,fsize)
+			mi.FileSize = append(mi.FileSize, fsize)
 			resp.Body.Close()
 		}
 	}
-
-
 
 	cmdDetail := exec.Command("youtube-dl", "--youtube-skip-dash-manifest", "--skip-download", "--print-json", youtubeURL)
 	out, err := cmdDetail.CombinedOutput()
