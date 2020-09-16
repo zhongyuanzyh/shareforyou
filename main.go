@@ -71,7 +71,7 @@ func monitorFileSize() {
 		log.Print("file coming...")
 		fs := getFileSize(mi.FileSize)
 		fi, _ := os.Stat("/data/youtube-dl/" + vi.Title + ".mp3")
-		log.Printf("获取的大小分别是：%v---%v",fs,fi)
+		log.Printf("获取的大小分别是：%v---%v",fs,fi.Size())
 		//fi,_:=os.Stat("/data/youtube-dl/"+vi.Title+".m4a")
 		progressRation := fi.Size() / fs * 100
 		//w.Header().Add("Content-Type", "application/json; charset=utf-8")
