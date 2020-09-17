@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -33,6 +35,50 @@ type MediaInfo struct {
 	ErrCode        int       `json:"error_code"`
 	ProcessPercent string    `json:"process_percentage"`
 	FileSize       []int64   `json:"file_size"`
+}
+
+type WriteCounter struct {
+	Total uint64
+}
+
+func (wc *WriteCounter) Write(p []byte) (int, error) {
+	n := len(p)
+	wc.Total += uint64(n)
+	wc.PrintProgress()
+	return n, nil
+}
+
+func (wc WriteCounter) PrintProgress() {
+	fmt.Printf("\r%s", strings.Repeat(" ", 35))
+	fmt.Printf("\rDownloading... %d B complete", wc.Total)
+}
+
+func DownloadFile(filepath string, url string) error {
+	out, err := os.Create(filepath + ".tmp")
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	counter := &WriteCounter{}
+	_, err = io.Copy(out, io.TeeReader(resp.Body, counter))
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("\n")
+
+	err = os.Rename(filepath+".tmp", filepath)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 
@@ -80,6 +126,20 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 		s := strings.Split(string(opBytes), "\n")
 		client := new(http.Client)
 		for i := 0; i < 2; i++ {
+			if i == 0 {
+				fmt.Println("开始下载视频文件......")
+				err := DownloadFile("/data/youtube-dl/"+vi.Title+".mp4",s[0])
+				if err !=nil{
+					panic(err)
+				}
+			}else {
+				fmt.Println("开始下载音频文件......")
+				err := DownloadFile("/data/youtube-dl/"+vi.Title+".mp3",s[1])
+				if err !=nil{
+					panic(err)
+				}
+			}
+
 			resp, err := client.Get(s[i])
 			if err != nil {
 				log.Print("获取文件信息失败", err)
