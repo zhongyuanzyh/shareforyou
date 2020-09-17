@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -99,8 +98,8 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	var vi VideoInfo
 	var mi MediaInfo
 	var cmd *exec.Cmd
-	var opBytes []byte
-	var stdout io.ReadCloser
+	var stdout []byte
+	var isNull int
 
 	mi.ErrCode = ConvertSuccess
 	_ = r.ParseForm()
@@ -116,23 +115,24 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 		goto RESP
 	}
 	_ = json.Unmarshal(out, &vi)
+	log.Printf("%v", vi)
 
 	cmd = exec.Command("youtube-dl", "-g", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", youtubeURL)
-	stdout, err = cmd.StdoutPipe()
+	stdout, err = cmd.CombinedOutput()
 	if err != nil {
 		log.Print("命令输出到管道失败", err)
 	}
-	defer stdout.Close()
+	//defer stdout.Close()
 	err = cmd.Run()
 	if err != nil {
 		log.Print("命令执行失败错误", err)
 	}
-	opBytes, err = ioutil.ReadAll(stdout)
-	if err != nil {
+	isNull =len(stdout)
+	if isNull == 0 {
 		log.Print("读取命令执行结果错误", err)
 	} else {
-		log.Println("获取的实际视频音频地址是", string(opBytes))
-		s := strings.Split(string(opBytes), "\n")
+		log.Println("获取的实际视频音频地址是", string(stdout))
+		s := strings.Split(string(stdout), "\n")
 		for i := 0; i < 2; i++ {
 			if i == 0 {
 				fmt.Println("开始下载视频文件......")
