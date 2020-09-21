@@ -56,12 +56,12 @@ func DownloadFile(filepath string, url string) error {
 	if err != nil {
 		return err
 	}
-	defer out.Close()
+	defer func() { _ = out.Close() }()
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	counter := &WriteCounter{}
 	_, err = io.Copy(out, io.TeeReader(resp.Body, counter))
@@ -94,12 +94,48 @@ func getFileSize(s []int64) int64 {
 	return sum
 }
 
+type Reader struct {
+	io.Reader
+	Total   int64
+	Current int64
+}
+
+func (r *Reader) Read(p []byte) (n int, err error) {
+	n, err = r.Reader.Read(p)
+
+	r.Current += int64(n)
+	fmt.Printf("\r进度 %.2f%%", float64(r.Current*10000/r.Total)/100)
+
+	return
+}
+
+func DownloadFileProgress(url, filename string) {
+	r, err := http.Get(url)
+	if err != nil {
+		panic(err)
+	}
+	defer func() { _ = r.Body.Close() }()
+
+	f, err := os.Create(filename)
+	if err != nil {
+		panic(err)
+	}
+	defer func() { _ = f.Close() }()
+
+	reader := &Reader{
+		Reader: r.Body,
+		Total:  r.ContentLength,
+	}
+
+	_, _ = io.Copy(f, reader)
+
+}
+
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	var vi VideoInfo
 	var mi MediaInfo
 	var cmd *exec.Cmd
 	var stdout []byte
-	var isNull int
 
 	mi.ErrCode = ConvertSuccess
 	_ = r.ParseForm()
@@ -108,93 +144,48 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 
 	cmdDetail := exec.Command("youtube-dl", "--youtube-skip-dash-manifest", "--skip-download", "--print-json", youtubeURL)
 	out, err := cmdDetail.CombinedOutput()
-	_ = cmdDetail.Run()
 	if err != nil {
 		log.Printf("download info failed!!!%v", err)
 		mi.ErrCode = CanNotGetMediaInfo
 		goto RESP
 	}
 	_ = json.Unmarshal(out, &vi)
-	log.Printf("%v", vi)
 
 	cmd = exec.Command("youtube-dl", "-g", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", youtubeURL)
 	stdout, err = cmd.CombinedOutput()
 	if err != nil {
-		log.Print("命令输出到管道失败", err)
-	}
-	//defer stdout.Close()
-	err = cmd.Run()
-	if err != nil {
-		log.Print("命令执行失败错误", err)
-	}
-	isNull =len(stdout)
-	if isNull == 0 {
-		log.Print("读取命令执行结果错误", err)
+		log.Print("命令执行失败", err)
 	} else {
-		log.Println("获取的实际视频音频地址是", string(stdout))
+		log.Println("获取的真实视频音频地址是", string(stdout))
 		s := strings.Split(string(stdout), "\n")
 		for i := 0; i < 2; i++ {
 			if i == 0 {
 				fmt.Println("开始下载视频文件......")
-				err := DownloadFile("/data/youtube-dl/"+vi.Title+".mp4", s[0])
-				if err != nil {
-					panic(err)
-				}
+				//err := DownloadFile("/data/youtube-dl/"+vi.Title+".mp4", s[0])
+				DownloadFileProgress(s[0], "/data/youtube-dl/"+vi.Title+".mp4")
+				//if err != nil {
+				//	panic(err)
+				//}
 			} else {
 				fmt.Println("开始下载音频文件......")
-				err := DownloadFile("/data/youtube-dl/"+vi.Title+".mp3", s[1])
-				if err != nil {
-					panic(err)
-				}
+				//err := DownloadFile("/data/youtube-dl/"+vi.Title+".mp3", s[1])
+				DownloadFileProgress(s[1], "/data/youtube-dl/"+vi.Title+".mp3")
+				//if err != nil {
+				//	panic(err)
+				//}
 			}
 		}
 	}
 
-	//if vi.Extractor == "youtube" {
-	//	switch mediaFormat {
-	//	case "mp4":
-	//		cmd = exec.Command("youtube-dl", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", youtubeURL, "-o", "/data/youtube-dl/"+vi.Title+".mp4")
-	//	default:
-	//		cmd = exec.Command("youtube-dl", "-x", "--audio-format", "mp3", youtubeURL, "-o", "/data/youtube-dl/"+vi.Title+".mp3")
-	//	}
-	//} else if vi.Extractor == "BiliBili" {
-	//	switch mediaFormat {
-	//	case "mp4":
-	//		cmd = exec.Command("youtube-dl", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", youtubeURL, "-o", "/data/youtube-dl/"+vi.Title+"."+vi.Ext)
-	//	default:
-	//		cmd = exec.Command("youtube-dl", "-x", "--audio-format", "m4a", youtubeURL, "-o", "/data/youtube-dl/"+vi.Title+".m4a")
-	//	}
-	//}
-	//cmdDetail.Stdout = os.Stdout
-	//cmdDetail.Stderr = os.Stderr
-	//err = cmd.Run()
-	//if err != nil {
-	//	log.Printf("命令执行有错误%v", err)
-	//	mi.ErrCode = YoutubeDLCommandError
-	//	goto RESP
-	//}
-	//log.Printf("%v", vi)
-
-	mi.VideoInfo = vi
-	//if vi.Extractor == "BiliBili" {
-	//	switch mediaFormat {
-	//	case "mp4":
-	//		mi.DownloadUrl = "/youtube-dl/" + vi.Title + "." + vi.Ext
-	//	default:
-	//		mi.DownloadUrl = "/youtube-dl/" + vi.Title + ".m4a"
-	//	}
-	//} else if vi.Extractor == "youtube" {
 	switch mediaFormat {
 	case "mp4":
 		mi.DownloadUrl = "/youtube-dl/" + vi.Title + ".mp4"
 	default:
 		mi.DownloadUrl = "/youtube-dl/" + vi.Title + ".mp3"
 	}
-	//}
 
 RESP:
 	rsp, _ := json.Marshal(mi)
-	//_, _ = io.WriteString(w, youtubeURL+"  "+mediaFormat)
 	w.Header().Add("Content-Type", "application/json; charset=utf-8")
 	_, _ = w.Write(rsp)
 }
