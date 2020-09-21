@@ -39,7 +39,7 @@ func main() {
 	_ = http.ListenAndServe(":8888", mux)
 }
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
-	var vi VideoInfo
+	var vi *VideoInfo
 	var mi MediaInfo
 	var cmd *exec.Cmd
 
@@ -61,7 +61,7 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 		case "mp4":
 			cmd = exec.Command("youtube-dl", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", youtubeURL, "-o", "/data/youtube-dl/"+vi.Title+".mp4")
 		default:
-			cmd = exec.Command("youtube-dl", "-x", "--audio-format", "mp3", youtubeURL, "-o", "/data/youtube-dl/"+vi.Title+".mp3")
+			cmd = exec.Command("youtube-dl", "-x", "--audio-format", "mp3", "-r", "800K", youtubeURL, "-o", "/data/youtube-dl/"+vi.Title+".mp3")
 		}
 	} else if vi.Extractor == "BiliBili" {
 		switch mediaFormat {
@@ -71,31 +71,34 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 			cmd = exec.Command("youtube-dl", "-x", "--audio-format", "m4a", youtubeURL, "-o", "/data/youtube-dl/"+vi.Title+".m4a")
 		}
 	}
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	err = cmd.Run()
-	if err != nil {
-		log.Printf("命令执行有错误%v", err)
-		mi.ErrCode = YoutubeDLCommandError
-		goto RESP
-	}
+
+	go func() {
+		err = cmd.Run()
+		if err != nil {
+			log.Printf("命令执行有错误%v", err)
+			mi.ErrCode = YoutubeDLCommandError
+			goto RESP2
+		}
+	RESP2:
+		rsp, _ := json.Marshal(mi)
+		w.Header().Add("Content-Type", "application/json; charset=utf-8")
+		_, _ = w.Write(rsp)
+		return
+	}()
+
 	go func() {
 		for {
 			fi, err := os.Stat("/data/youtube-dl/" + vi.Title + ".mp3" + ".part")
 			if err != nil {
-				fmt.Println("文件有错误，退出")
-				break
+				fmt.Println("文件信息报错", err)
 			} else {
-				fmt.Printf("文件大小是：%s", fi.Size())
-				time.Sleep(time.Duration(1) * time.Second)
+				fmt.Println("文件大小是:", fi.Size())
+				time.Sleep(time.Duration(500) * time.Millisecond)
 			}
-
 		}
-
 	}()
 
-	log.Printf("%v", vi)
-	mi.VideoInfo = vi
+	mi.VideoInfo = *vi
 	if vi.Extractor == "BiliBili" {
 		switch mediaFormat {
 		case "mp4":
