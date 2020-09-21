@@ -2,10 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
+	"time"
 )
 
 const (
@@ -77,6 +79,21 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 		mi.ErrCode = YoutubeDLCommandError
 		goto RESP
 	}
+	go func() {
+		for {
+			fi, err := os.Stat("/data/youtube-dl/" + vi.Title + ".mp3" + ".part")
+			if err != nil {
+				fmt.Println("文件有错误，退出")
+				break
+			} else {
+				fmt.Printf("文件大小是：%s", fi.Size())
+				time.Sleep(time.Duration(1) * time.Second)
+			}
+
+		}
+
+	}()
+
 	log.Printf("%v", vi)
 	mi.VideoInfo = vi
 	if vi.Extractor == "BiliBili" {
