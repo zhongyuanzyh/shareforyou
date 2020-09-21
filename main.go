@@ -110,7 +110,14 @@ func (r *Reader) Read(p []byte) (n int, err error) {
 }
 
 func DownloadFileProgress(url, filename string) {
-	r, err := http.Get(url)
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("Connection", "Keep-Alive")
+	req.Header.Set("Accept-Language", "en-US")
+	req.Header.Set("User-Agent", "Mozilla/5.0")
+	r, err := client.Do(req)
+	//r, err := http.Get(url)
+
 	if err != nil {
 		panic(err)
 	}
