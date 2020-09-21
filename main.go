@@ -32,7 +32,7 @@ type MediaInfo struct {
 	DownloadUrl    string    `json:"download_url"`
 	ErrCode        int       `json:"error_code"`
 	ProcessPercent string    `json:"process_percentage"`
-	FileSize       []int64   `json:"file_size"`
+	FileSize       int64     `json:"file_size"`
 }
 
 type WriteCounter struct {
@@ -109,7 +109,7 @@ func (r *Reader) Read(p []byte) (n int, err error) {
 	return
 }
 
-func DownloadFileProgress(url, filename string) {
+func DownloadFileProgress(url, filename string, w http.ResponseWriter) {
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Connection", "Keep-Alive")
@@ -134,13 +134,18 @@ func DownloadFileProgress(url, filename string) {
 		Total:  r.ContentLength,
 	}
 
-	_, _ = io.Copy(f, reader)
-
+	wn, _ := io.Copy(f, reader)
+	mi.FileSize = wn
+	rsp, _ := json.Marshal(mi)
+	w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	_, _ = w.Write(rsp)
 }
 
+var mi MediaInfo
+var vi VideoInfo
+
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
-	var vi VideoInfo
-	var mi MediaInfo
+
 	var cmd *exec.Cmd
 	var stdout []byte
 
@@ -169,14 +174,14 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 			if i == 0 {
 				fmt.Println("开始下载视频文件......")
 				//err := DownloadFile("/data/youtube-dl/"+vi.Title+".mp4", s[0])
-				DownloadFileProgress(s[0], "/data/youtube-dl/"+vi.Title+".mp4")
+				//DownloadFileProgress(s[0], "/data/youtube-dl/"+vi.Title+".mp4",w)
 				//if err != nil {
 				//	panic(err)
 				//}
 			} else {
 				fmt.Println("开始下载音频文件......")
 				//err := DownloadFile("/data/youtube-dl/"+vi.Title+".mp3", s[1])
-				DownloadFileProgress(s[1], "/data/youtube-dl/"+vi.Title+".mp3")
+				DownloadFileProgress(s[1], "/data/youtube-dl/"+vi.Title+".mp3", w)
 				//if err != nil {
 				//	panic(err)
 				//}
