@@ -98,12 +98,15 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 			fi, err := os.Stat("/data/youtube-dl/" + vi.Title + ".mp3" + ".part")
 			if err != nil {
 				fmt.Println("文件信息报错", err)
+				if os.IsNotExist(err) {
+					f, _ := os.Stat("/data/youtube-dl/" + vi.Title + ".mp3")
+					if f.Size() == int64(vi.RequestedFormats[1].FileSize) {
+						break
+					}
+				}
 			} else {
 				fmt.Println("文件大小是:", fi.Size())
 				time.Sleep(time.Duration(500) * time.Millisecond)
-				if fi.Size() == int64(vi.RequestedFormats[1].FileSize) {
-					break
-				}
 			}
 		}
 	}()
