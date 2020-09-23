@@ -17,13 +17,19 @@ const (
 )
 
 type VideoInfo struct {
-	UploadDate    string `json:"upload_date"`
-	VideoDuration int    `json:"duration"`
-	Title         string `json:"title"`
-	Ext           string `json:"ext"`
-	Uploader      string `json:"uploader"`
-	Description   string `json:"description"`
-	Extractor     string `json:"extractor"`
+	UploadDate       string        `json:"upload_date"`
+	VideoDuration    int           `json:"duration"`
+	Title            string        `json:"title"`
+	Ext              string        `json:"ext"`
+	Uploader         string        `json:"uploader"`
+	Description      string        `json:"description"`
+	Extractor        string        `json:"extractor"`
+	RequestedFormats [2]FormatInfo `json:"requested_formats"`
+}
+type FormatInfo struct {
+	FileSize  int    `json:"filesize"`
+	FormatID  int    `json:"format_id"`
+	Extension string `json:"ext"`
 }
 
 type MediaInfo struct {
@@ -57,6 +63,7 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = json.Unmarshal(out, &vi)
+	log.Printf("拿到的文件格式和大小%v", vi.RequestedFormats)
 	if vi.Extractor == "youtube" {
 		switch mediaFormat {
 		case "mp4":
