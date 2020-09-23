@@ -28,7 +28,7 @@ type VideoInfo struct {
 }
 type FormatInfo struct {
 	FileSize  int    `json:"filesize"`
-	FormatID  int    `json:"format_id"`
+	FormatID  string `json:"format_id"`
 	Extension string `json:"ext"`
 }
 
@@ -63,7 +63,6 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = json.Unmarshal(out, &vi)
-	log.Printf("拿到的文件格式和大小%v", vi.RequestedFormats)
 	if vi.Extractor == "youtube" {
 		switch mediaFormat {
 		case "mp4":
@@ -102,6 +101,9 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 			} else {
 				fmt.Println("文件大小是:", fi.Size())
 				time.Sleep(time.Duration(500) * time.Millisecond)
+				if fi.Size() == int64(vi.RequestedFormats[1].FileSize) {
+					break
+				}
 			}
 		}
 	}()
