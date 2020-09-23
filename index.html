@@ -8,6 +8,7 @@
     <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
     <script type="text/javascript">
         function convert() {
+           // setTimeout(convert,1000);
             if ($("input[type=text]").val() ==="") {
                 alert("请输入视频连接地址。");
                 return false;
@@ -29,9 +30,15 @@
                 success: function (data) {
                     console.log(data);
                     $("#converter").hide();
-                    $("#downloadContent a")[0].innerHTML = data.video_info.title;
-                    $("#downloadLink a").attr("href",data.download_url);
-                    $("#downloadContent").show();
+                    if (data.download_progress >99){
+                        $("#downloadContent a")[0].innerHTML = data.video_info.title;
+                        $("#downloadLink a").attr("href",data.download_url);
+                        $("#downloadContent").show();
+                    }else{
+                        $("#progressValue")[0].innerHTML =data.download_progress;
+                        $("#progressContent").show();
+                    }
+
                         /*$("#converter form #submit").hide();*/
                 },
                 error : function(request) {
@@ -74,6 +81,10 @@
               <div id="downloadLink">
                 <a href="" download></a> 
               </div>
+            </div>
+            <div id="progressContent">
+                <div id="progressTitle">任务下载进度</div>
+                <div id="progressValue"></div>
             </div>
         </div>
     <div id="separator"></div>

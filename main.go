@@ -33,21 +33,35 @@ type FormatInfo struct {
 }
 
 type MediaInfo struct {
-	VideoInfo   VideoInfo `json:"video_info"`
-	DownloadUrl string    `json:"download_url"`
-	ErrCode     int       `json:"error_code"`
+	VideoInfo        VideoInfo `json:"video_info"`
+	DownloadUrl      string    `json:"download_url"`
+	DownloadProgress float64   `json:"download_progress"`
+	ErrCode          int       `json:"error_code"`
 }
 
 func main() {
 	http.HandleFunc("/mpx", youtubeMp3)
+	http.HandleFunc("/progress", youtubeProgress)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/mpx", youtubeMp3)
+	mux.HandleFunc("/progress", youtubeProgress)
 	_ = http.ListenAndServe(":8888", mux)
 }
 
 var vi *VideoInfo
 var mi MediaInfo
 var cmd *exec.Cmd
+
+func youtubeProgress(w http.ResponseWriter, r *http.Request) {
+	type p struct {
+		P float64 `json:"progress"`
+	}
+	var rp p
+	rp.P = mi.DownloadProgress
+	rsp, _ := json.Marshal(rp)
+	w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	_, _ = w.Write(rsp)
+}
 
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	mi.ErrCode = ConvertSuccess
@@ -98,15 +112,19 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 			fi, err := os.Stat("/data/youtube-dl/" + vi.Title + ".mp3" + ".part")
 			if err != nil {
 				fmt.Println("文件信息报错", err)
-				if os.IsNotExist(err) {
-					f, _ := os.Stat("/data/youtube-dl/" + vi.Title + ".mp3")
-					if f.Size() == int64(vi.RequestedFormats[1].FileSize) {
-						break
-					}
-				}
 			} else {
-				fmt.Println("文件大小是:", fi.Size())
+				fmt.Println("json获取的文件大小是：", vi.RequestedFormats[0].FileSize, vi.RequestedFormats[1].FileSize)
+				fmt.Printf("文件下载百分比是:%.2f\n", float64(fi.Size())/float64(vi.RequestedFormats[1].FileSize)*100)
+				mi.DownloadProgress = float64(fi.Size()) / float64(vi.RequestedFormats[1].FileSize) * 100
 				time.Sleep(time.Duration(500) * time.Millisecond)
+				type p struct {
+					P float64 `json:"progress"`
+				}
+				var rp p
+				rp.P = mi.DownloadProgress
+				rsp, _ := json.Marshal(rp)
+				w.Header().Add("Content-Type", "application/json; charset=utf-8")
+				_, _ = w.Write(rsp)
 			}
 		}
 	}()
