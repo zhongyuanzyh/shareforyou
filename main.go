@@ -38,11 +38,12 @@ func main() {
 	mux.HandleFunc("/mpx", youtubeMp3)
 	_ = http.ListenAndServe(":8888", mux)
 }
-func youtubeMp3(w http.ResponseWriter, r *http.Request) {
-	var vi *VideoInfo
-	var mi MediaInfo
-	var cmd *exec.Cmd
 
+var vi *VideoInfo
+var mi MediaInfo
+var cmd *exec.Cmd
+
+func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	mi.ErrCode = ConvertSuccess
 	_ = r.ParseForm()
 	youtubeURL := r.Form.Get("video")
