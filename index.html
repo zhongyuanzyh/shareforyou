@@ -27,12 +27,13 @@
                 success: function (data) {
                     console.log(data);
                    // $("#converter").hide();
-                    if (data.download_progress >99){
+                    if (data.download_progress >95){
                         $("#downloadContent a")[0].innerHTML = data.video_info.title;
                         $("#downloadLink a").attr("href",data.download_url);
                         $("#downloadContent").show();
+                        window.clearInterval(setID);
                     }else{
-                        $("#progressValue")[0].innerHTML =data.download_progress;
+                        $("#progressValue")[0].innerHTML =data.progress;
                         $("#progressContent").show();
                     }
                 },
@@ -52,9 +53,9 @@
                     alert("异常！");
                 }
             });
-            window.setInterval(function () {
+            var setID = window.setInterval(function () {
             $.ajax(getProgress)
-            },1000);
+            },2000);
         }
     </script>
 </head>

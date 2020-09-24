@@ -116,7 +116,7 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 				fmt.Println("json获取的文件大小是：", vi.RequestedFormats[0].FileSize, vi.RequestedFormats[1].FileSize)
 				fmt.Printf("文件下载百分比是:%.2f\n", float64(fi.Size())/float64(vi.RequestedFormats[1].FileSize)*100)
 				mi.DownloadProgress = float64(fi.Size()) / float64(vi.RequestedFormats[1].FileSize) * 100
-				time.Sleep(time.Duration(500) * time.Millisecond)
+				time.Sleep(time.Duration(1000) * time.Millisecond)
 				//type p struct {
 				//	P float64 `json:"progress"`
 				//}
