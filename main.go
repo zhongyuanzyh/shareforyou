@@ -55,9 +55,11 @@ var cmd *exec.Cmd
 func youtubeProgress(w http.ResponseWriter, r *http.Request) {
 	type p struct {
 		P float64 `json:"progress"`
+		D string  `json:"link"`
 	}
 	var rp p
 	rp.P = mi.DownloadProgress
+	rp.D = mi.DownloadUrl
 	rsp, _ := json.Marshal(rp)
 	w.Header().Add("Content-Type", "application/json; charset=utf-8")
 	_, _ = w.Write(rsp)
