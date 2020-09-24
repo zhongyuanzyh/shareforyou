@@ -21,6 +21,22 @@
                 alert("请输入http或者https开头的视频地址。");
                 return false;
             }
+            var getProgress = {
+                url:"/progress",
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data);
+                   // $("#converter").hide();
+                    if (data.download_progress >99){
+                        $("#downloadContent a")[0].innerHTML = data.video_info.title;
+                        $("#downloadLink a").attr("href",data.download_url);
+                        $("#downloadContent").show();
+                    }else{
+                        $("#progressValue")[0].innerHTML =data.download_progress;
+                        $("#progressContent").show();
+                    }
+                },
+            };
             $.ajax({
                 //几个参数需要注意一下
                 type: "POST",//方法类型
@@ -30,21 +46,15 @@
                 success: function (data) {
                     console.log(data);
                     $("#converter").hide();
-                    if (data.download_progress >99){
-                        $("#downloadContent a")[0].innerHTML = data.video_info.title;
-                        $("#downloadLink a").attr("href",data.download_url);
-                        $("#downloadContent").show();
-                    }else{
-                        $("#progressValue")[0].innerHTML =data.download_progress;
-                        $("#progressContent").show();
-                    }
-
-                        /*$("#converter form #submit").hide();*/
                 },
+                        /*$("#converter form #submit").hide();*/
                 error : function(request) {
                     alert("异常！");
                 }
             });
+            window.setInterval(function () {
+            $.ajax(getProgress)
+            },1000);
         }
     </script>
 </head>
