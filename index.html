@@ -21,17 +21,19 @@
                 alert("请输入http或者https开头的视频地址。");
                 return false;
             }
+            var limitNum = 95.0;
             var getProgress = {
                 url:"/progress",
                 dataType: 'json',
                 success: function (data) {
                     console.log(data);
                    // $("#converter").hide();
-                    if (data.download_progress >95){
+                    if (parseFloat(data.progress) > parseFloat(limitNum.toFixed(2))){
+                        window.clearInterval(setID);
+                        $("#progressContent").hide();
                         $("#downloadContent a")[0].innerHTML = data.video_info.title;
                         $("#downloadLink a").attr("href",data.download_url);
                         $("#downloadContent").show();
-                        window.clearInterval(setID);
                     }else{
                         $("#progressValue")[0].innerHTML =data.progress;
                         $("#progressContent").show();
