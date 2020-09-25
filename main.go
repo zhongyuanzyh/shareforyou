@@ -62,10 +62,12 @@ func youtubeProgress(w http.ResponseWriter, r *http.Request) {
 	//rp.P = mi.DownloadProgress
 	//rp.D = mi.DownloadUrl
 	//rp.T = mi.VideoInfo.Title
+	if mi.DownloadProgress > 95 {
+		mi.DownloadProgress = 0
+	}
 	rsp, _ := json.Marshal(mi)
 	w.Header().Add("Content-Type", "application/json; charset=utf-8")
 	_, _ = w.Write(rsp)
-	mi.DownloadProgress = 0
 }
 
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
