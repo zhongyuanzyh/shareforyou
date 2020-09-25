@@ -119,14 +119,11 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 				fmt.Printf("文件下载百分比是:%.2f\n", float64(fi.Size())/float64(vi.RequestedFormats[1].FileSize)*100)
 				mi.DownloadProgress = float64(fi.Size()) / float64(vi.RequestedFormats[1].FileSize) * 100
 				time.Sleep(time.Duration(1000) * time.Millisecond)
+				rsp, _ := json.Marshal(mi)
+				w.Header().Add("Content-Type", "application/json; charset=utf-8")
+				_, _ = w.Write(rsp)
 			}
 		}
-	}()
-
-	go func() {
-		rsp, _ := json.Marshal(mi)
-		w.Header().Add("Content-Type", "application/json; charset=utf-8")
-		_, _ = w.Write(rsp)
 	}()
 
 	mi.VideoInfo = *vi
