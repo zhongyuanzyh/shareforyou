@@ -48,10 +48,6 @@ func main() {
 	_ = http.ListenAndServe(":8888", mux)
 }
 
-var vi *VideoInfo
-var mi MediaInfo
-var cmd *exec.Cmd
-
 func youtubeProgress(w http.ResponseWriter, r *http.Request) {
 	//type A struct {
 	//	P float64 `json:"progress"`
@@ -62,15 +58,14 @@ func youtubeProgress(w http.ResponseWriter, r *http.Request) {
 	//rp.P = mi.DownloadProgress
 	//rp.D = mi.DownloadUrl
 	//rp.T = mi.VideoInfo.Title
-	if mi.DownloadProgress > 95 {
-		mi.DownloadProgress = 0
-	}
-	rsp, _ := json.Marshal(mi)
-	w.Header().Add("Content-Type", "application/json; charset=utf-8")
-	_, _ = w.Write(rsp)
+
 }
 
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
+	var vi *VideoInfo
+	var mi MediaInfo
+	var cmd *exec.Cmd
+
 	mi.ErrCode = ConvertSuccess
 	_ = r.ParseForm()
 	youtubeURL := r.Form.Get("video")
@@ -126,6 +121,12 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 				time.Sleep(time.Duration(1000) * time.Millisecond)
 			}
 		}
+	}()
+
+	go func() {
+		rsp, _ := json.Marshal(mi)
+		w.Header().Add("Content-Type", "application/json; charset=utf-8")
+		_, _ = w.Write(rsp)
 	}()
 
 	mi.VideoInfo = *vi
