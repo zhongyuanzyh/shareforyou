@@ -52,13 +52,15 @@ var vi *VideoInfo
 var mi MediaInfo
 var cmd *exec.Cmd
 
+type p struct {
+	P float64 `json:"progress"`
+	D string  `json:"link"`
+	T string  `json:"title"`
+}
+
+var rp *p
+
 func youtubeProgress(w http.ResponseWriter, r *http.Request) {
-	type p struct {
-		P float64 `json:"progress"`
-		D string  `json:"link"`
-		T string  `json:"title"`
-	}
-	var rp p
 	rp.P = mi.DownloadProgress
 	rp.D = mi.DownloadUrl
 	rp.T = mi.VideoInfo.Title
