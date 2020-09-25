@@ -29,10 +29,10 @@
                     console.log(data);
                     // $("#converter").hide();
                     if (parseFloat(data.progress) > parseFloat(limitNum.toFixed(2))){
-                        debugger;
+                        //debugger;
                         $("#progressContent").hide();
-                        $("#downloadContent a")[0].innerHTML = data.video_info.title;
-                        $("#downloadLink a").attr("href",data.download_url);
+                        $("#downloadContent a")[0].innerHTML = data.title;
+                        $("#downloadLink a").attr("href",data.link);
                         $("#downloadContent").show();
                         clearInterval(setID);
                     }else{
