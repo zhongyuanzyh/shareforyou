@@ -133,6 +133,12 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
+	go func() {
+		rsp, _ := json.Marshal(mi)
+		w.Header().Add("Content-Type", "application/json; charset=utf-8")
+		_, _ = w.Write(rsp)
+	}()
+
 	mi.VideoInfo = *vi
 	if vi.Extractor == "BiliBili" {
 		switch mediaFormat {
