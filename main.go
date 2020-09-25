@@ -8,8 +8,6 @@ import (
 	"os"
 	"os/exec"
 	"time"
-
-	"github.com/patrickmn/go-cache"
 )
 
 const (
@@ -62,7 +60,7 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("download info failed!!!%v", err)
 		mi.ErrCode = CanNotGetMediaInfo
-		goto RESP
+		//goto RESP
 	}
 
 	_ = json.Unmarshal(out, &vi)
@@ -85,17 +83,17 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go func() {
-		err = cmd.Run()
-		if err != nil {
-			log.Printf("命令执行有错误%v", err)
-			mi.ErrCode = YoutubeDLCommandError
-			goto RESP2
-		}
-	RESP2:
-		rsp, _ := json.Marshal(mi)
-		w.Header().Add("Content-Type", "application/json; charset=utf-8")
-		_, _ = w.Write(rsp)
-		return
+		_ = cmd.Run()
+		//if err != nil {
+		//	log.Printf("命令执行有错误%v", err)
+		//	mi.ErrCode = YoutubeDLCommandError
+		//	goto RESP2
+		//}
+		//RESP2:
+		//	rsp, _ := json.Marshal(mi)
+		//	w.Header().Add("Content-Type", "application/json; charset=utf-8")
+		//	_, _ = w.Write(rsp)
+		//	return
 	}()
 
 	go func() {
@@ -113,8 +111,7 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 				time.Sleep(time.Duration(1000) * time.Millisecond)
 				if mi.DownloadProgress > 95 {
 					fmt.Println("文件下载已经完成！")
-					var tmp MediaInfo
-					mi = tmp
+					mi.DownloadProgress = 0
 					break
 				}
 			}
@@ -137,8 +134,8 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-RESP:
-	rsp, _ := json.Marshal(mi)
-	w.Header().Add("Content-Type", "application/json; charset=utf-8")
-	_, _ = w.Write(rsp)
+	//RESP:
+	//	rsp, _ := json.Marshal(mi)
+	//	w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	//_, _ = w.Write(rsp)
 }
