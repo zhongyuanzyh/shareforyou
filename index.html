@@ -28,15 +28,15 @@
                 success: function (data) {
                     console.log(data);
                     // $("#converter").hide();
-                    if (parseFloat(data.progress) > parseFloat(limitNum.toFixed(2))){
+                    if (parseFloat(data.download_progress) > parseFloat(limitNum.toFixed(2))){
                         //debugger;
                         $("#progressContent").hide();
-                        $("#downloadContent a")[0].innerHTML = data.title;
-                        $("#downloadLink a").attr("href",data.link);
+                        $("#downloadContent a")[0].innerHTML = data.video_info.title;
+                        $("#downloadLink a").attr("href",data.download_url);
                         $("#downloadContent").show();
                         clearInterval(setID);
                     }else{
-                        $("#progressValue")[0].innerHTML =data.progress;
+                        $("#progressValue")[0].innerHTML =data.download_progress;
                         $("#progressContent").show();
                     }
                 },
