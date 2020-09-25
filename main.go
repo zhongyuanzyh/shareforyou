@@ -43,43 +43,14 @@ type MediaInfo struct {
 
 func main() {
 	http.HandleFunc("/mpx", youtubeMp3)
-	http.HandleFunc("/progress", youtubeProgress)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/mpx", youtubeMp3)
-	mux.HandleFunc("/progress", youtubeProgress)
 	_ = http.ListenAndServe(":8888", mux)
 }
 
 var vi *VideoInfo
 var mi MediaInfo
 var cmd *exec.Cmd
-var c *cache.Cache
-
-func youtubeProgress(w http.ResponseWriter, r *http.Request) {
-	//type A struct {
-	//	P float64 `json:"progress"`
-	//	D string  `json:"link"`
-	//	T string  `json:"title"`
-	//}
-	//var rp A
-	//rp.P = mi.DownloadProgress
-	//rp.D = mi.DownloadUrl
-	//rp.T = mi.VideoInfo.Title
-	_, found := c.Get(mi.VideoInfo.Title)
-	if found && mi.DownloadProgress >= 95 {
-		rsp, _ := json.Marshal(mi)
-		w.Header().Add("Content-Type", "application/json; charset=utf-8")
-		_, _ = w.Write(rsp)
-	} else if found && mi.DownloadProgress < 95 {
-		rsp, _ := json.Marshal(mi)
-		w.Header().Add("Content-Type", "application/json; charset=utf-8")
-		_, _ = w.Write(rsp)
-	} else if !found {
-		rsp, _ := json.Marshal(mi)
-		w.Header().Add("Content-Type", "application/json; charset=utf-8")
-		_, _ = w.Write(rsp)
-	}
-}
 
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	mi.ErrCode = ConvertSuccess
@@ -96,8 +67,6 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 
 	_ = json.Unmarshal(out, &vi)
 	mi.VideoInfo = *vi
-
-	c = cache.New(5*time.Minute, 10*time.Minute)
 
 	if vi.Extractor == "youtube" {
 		switch mediaFormat {
@@ -138,10 +107,14 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 				fmt.Println("json获取的文件大小是：", vi.RequestedFormats[0].FileSize, vi.RequestedFormats[1].FileSize)
 				fmt.Printf("文件下载百分比是:%.2f\n", float64(fi.Size())/float64(vi.RequestedFormats[1].FileSize)*100)
 				mi.DownloadProgress = float64(fi.Size()) / float64(vi.RequestedFormats[1].FileSize) * 100
-				c.Set(vi.Title, mi, cache.DefaultExpiration)
+				rsp, _ := json.Marshal(mi)
+				w.Header().Add("Content-Type", "application/json; charset=utf-8")
+				_, _ = w.Write(rsp)
 				time.Sleep(time.Duration(1000) * time.Millisecond)
 				if mi.DownloadProgress > 95 {
 					fmt.Println("文件下载已经完成！")
+					var tmp MediaInfo
+					mi = tmp
 					break
 				}
 			}
@@ -166,7 +139,6 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 
 RESP:
 	rsp, _ := json.Marshal(mi)
-	//_, _ = io.WriteString(w, youtubeURL+"  "+mediaFormat)
 	w.Header().Add("Content-Type", "application/json; charset=utf-8")
 	_, _ = w.Write(rsp)
 }
