@@ -48,6 +48,10 @@ func main() {
 	_ = http.ListenAndServe(":8888", mux)
 }
 
+var vi *VideoInfo
+var mi MediaInfo
+var cmd *exec.Cmd
+
 func youtubeProgress(w http.ResponseWriter, r *http.Request) {
 	//type A struct {
 	//	P float64 `json:"progress"`
@@ -58,13 +62,13 @@ func youtubeProgress(w http.ResponseWriter, r *http.Request) {
 	//rp.P = mi.DownloadProgress
 	//rp.D = mi.DownloadUrl
 	//rp.T = mi.VideoInfo.Title
+	rsp, _ := json.Marshal(mi)
+	w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	_, _ = w.Write(rsp)
 
 }
 
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
-	var vi *VideoInfo
-	var mi MediaInfo
-	var cmd *exec.Cmd
 
 	mi.ErrCode = ConvertSuccess
 	_ = r.ParseForm()
@@ -119,9 +123,10 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 				fmt.Printf("文件下载百分比是:%.2f\n", float64(fi.Size())/float64(vi.RequestedFormats[1].FileSize)*100)
 				mi.DownloadProgress = float64(fi.Size()) / float64(vi.RequestedFormats[1].FileSize) * 100
 				time.Sleep(time.Duration(1000) * time.Millisecond)
-				rsp, _ := json.Marshal(mi)
-				w.Header().Add("Content-Type", "application/json; charset=utf-8")
-				_, _ = w.Write(rsp)
+				if mi.DownloadProgress > 99 {
+					fmt.Println("文件下载已经完成！")
+					break
+				}
 			}
 		}
 	}()
