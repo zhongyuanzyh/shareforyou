@@ -65,24 +65,20 @@ func youtubeProgress(w http.ResponseWriter, r *http.Request) {
 	//rp.P = mi.DownloadProgress
 	//rp.D = mi.DownloadUrl
 	//rp.T = mi.VideoInfo.Title
-	for {
-		_, found := c.Get(mi.VideoInfo.Title)
-		if found && mi.DownloadProgress >= 95 {
-			rsp, _ := json.Marshal(mi)
-			w.Header().Add("Content-Type", "application/json; charset=utf-8")
-			_, _ = w.Write(rsp)
-			break
-		} else if found && mi.DownloadProgress < 95 {
-			rsp, _ := json.Marshal(mi)
-			w.Header().Add("Content-Type", "application/json; charset=utf-8")
-			_, _ = w.Write(rsp)
-		} else if !found {
-			break
-		}
+	_, found := c.Get(mi.VideoInfo.Title)
+	if found && mi.DownloadProgress >= 95 {
+		rsp, _ := json.Marshal(mi)
+		w.Header().Add("Content-Type", "application/json; charset=utf-8")
+		_, _ = w.Write(rsp)
+	} else if found && mi.DownloadProgress < 95 {
+		rsp, _ := json.Marshal(mi)
+		w.Header().Add("Content-Type", "application/json; charset=utf-8")
+		_, _ = w.Write(rsp)
+	} else if !found {
+		rsp, _ := json.Marshal(mi)
+		w.Header().Add("Content-Type", "application/json; charset=utf-8")
+		_, _ = w.Write(rsp)
 	}
-	rsp, _ := json.Marshal(mi)
-	w.Header().Add("Content-Type", "application/json; charset=utf-8")
-	_, _ = w.Write(rsp)
 }
 
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
