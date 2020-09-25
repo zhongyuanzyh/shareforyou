@@ -134,8 +134,7 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	//RESP:
-	//	rsp, _ := json.Marshal(mi)
-	//	w.Header().Add("Content-Type", "application/json; charset=utf-8")
-	//_, _ = w.Write(rsp)
+	rsp, _ := json.Marshal(mi)
+	w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	_, _ = w.Write(rsp)
 }
