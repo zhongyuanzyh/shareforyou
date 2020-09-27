@@ -152,7 +152,7 @@ func fileDownload(url string, outputFileName string, ext string) {
 	startTime := time.Now()
 	//var url string //下载文件的地址
 	//url = "https://download.jetbrains.com/go/goland-2020.2.2.dmg"
-	downloader := NewFileDownloader(url, outputFileName+ext, "/data/youtube-dl", 10)
+	downloader := NewFileDownloader(url, outputFileName+"."+ext, "/data/youtube-dl", 10)
 	if err := downloader.Run(); err != nil {
 		// fmt.Printf("\n%s", err)
 		log.Fatal(err)
