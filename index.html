@@ -50,15 +50,18 @@
                 success: function (data) {
                     console.log(data);
                     $("#converter").hide();
+                    $("#downloadContent a")[0].innerHTML = data.video_info.title;
+                    $("#downloadLink a").attr("href",data.download_url);
+                    $("#downloadContent").show();
                 },
                 /*$("#converter form #submit").hide();*/
                 error : function(request) {
                     alert("异常！");
                 }
             });
-            var setID = setInterval(function () {
-                $.ajax(getProgress)
-            },2000);
+      //      var setID = setInterval(function () {
+        //        $.ajax(getProgress)
+          //  },2000);
         }
     </script>
 </head>
