@@ -95,8 +95,7 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 		mi.DownloadUrl = "/youtube-dl/" + vi.Title + ".mp3"
 	}
 
-	var j *Job
-	j = &Job{
+	j := &Job{
 		v:  vi,
 		m:  &mi,
 		Ch: make(chan []byte),
@@ -168,6 +167,7 @@ type Job struct {
 }
 
 func (j *Job) Do() {
+	log.Println("开始执行Do方法了")
 	rsp := fileDownload(j.v.RequestedFormats[1].RealURL, j.v.Title, j.v.Ext)
 	j.Ch <- rsp
 }
