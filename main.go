@@ -39,6 +39,7 @@ type FormatInfo struct {
 	FileSize  int    `json:"filesize"`
 	FormatID  string `json:"format_id"`
 	Extension string `json:"ext"`
+	RealURL   string `json:"real_url"`
 }
 
 type MediaInfo struct {
@@ -53,11 +54,13 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/mpx", youtubeMp3)
 	_ = http.ListenAndServe(":8888", mux)
+	go workerPool.Run()
 }
 
 var vi *VideoInfo
 var mi MediaInfo
 var cmd *exec.Cmd
+var workerPool = NewDispatcher()
 
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	mi.ErrCode = ConvertSuccess
@@ -71,6 +74,7 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 		mi.ErrCode = CanNotGetMediaInfo
 	}
 	_ = json.Unmarshal(out, &vi)
+	vi.Ext = mediaFormat
 	mi.VideoInfo = *vi
 
 	cmd = exec.Command("youtube-dl", "-g", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", youtubeURL)
@@ -80,19 +84,27 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	}
 	var s []string
 	s = strings.Split(string(resp), "\n")
+	vi.RequestedFormats[1].RealURL = s[1]
 
 	switch mediaFormat {
 	case "mp4":
 		log.Println("start downloading the video")
-		fileDownload(s[0], vi.Title, "mp4")
 		mi.DownloadUrl = "/youtube-dl/" + vi.Title + ".mp4"
 	default:
 		log.Println("start downloading the audio")
-		fileDownload(s[1], vi.Title, "mp3")
 		mi.DownloadUrl = "/youtube-dl/" + vi.Title + ".mp3"
 	}
 
-	rsp, _ := json.Marshal(mi)
+	var j *Job
+	j = &Job{
+		v:  vi,
+		m:  &mi,
+		Ch: make(chan []byte),
+	}
+
+	workerPool.Push(j)
+
+	rsp := <-j.Ch
 	w.Header().Add("Content-Type", "application/json; charset=utf-8")
 	_, _ = w.Write(rsp)
 }
@@ -149,7 +161,18 @@ type filePart struct {
 	Data  []byte //http下载得到的文件内容
 }
 
-func fileDownload(url string, outputFileName string, ext string) {
+type Job struct {
+	v  *VideoInfo
+	m  *MediaInfo
+	Ch chan []byte
+}
+
+func (j *Job) Do() {
+	rsp := fileDownload(j.v.RequestedFormats[1].RealURL, j.v.Title, j.v.Ext)
+	j.Ch <- rsp
+}
+
+func fileDownload(url string, outputFileName string, ext string) []byte {
 	startTime := time.Now()
 	//var url string //下载文件的地址
 	//url = "https://download.jetbrains.com/go/goland-2020.2.2.dmg"
@@ -159,6 +182,8 @@ func fileDownload(url string, outputFileName string, ext string) {
 		log.Fatal(err)
 	}
 	fmt.Printf("\n 文件下载完成耗时: %f second\n", time.Now().Sub(startTime).Seconds())
+	rsp, _ := json.Marshal(mi)
+	return rsp
 }
 
 //head 获取要下载的文件的基本信息(header) 使用HTTP Method Head
@@ -298,4 +323,88 @@ func (d FileDownloader) mergeFileParts() error {
 	//}
 	return nil
 
+}
+
+type (
+	job interface {
+		Do()
+	}
+	worker struct {
+		jobs chan job
+		quit chan bool
+	}
+	dispatcher struct {
+		jobs    chan job
+		workers chan *worker
+		set     []*worker
+		quit    chan bool
+	}
+)
+
+func (w *worker) start(d *dispatcher) {
+	go func() {
+		for {
+			select {
+			case j := <-w.jobs:
+				//go func(j job) {
+				j.Do()
+				d.workers <- w
+				//}(j)
+			case <-w.quit:
+				return
+			}
+		}
+	}()
+}
+
+func (w *worker) stop() {
+	w.quit <- true
+}
+
+func (d *dispatcher) Push(j job) {
+	d.jobs <- j
+}
+
+func (d *dispatcher) Quit() {
+	d.quit <- true
+	time.Sleep(500 * time.Millisecond)
+}
+
+func (d *dispatcher) Run() {
+	for {
+		select {
+		case j := <-d.jobs:
+			w := <-d.workers
+			w.jobs <- j
+		case <-d.quit:
+			for v := range d.workers {
+				v.stop()
+			}
+			return
+		}
+	}
+}
+
+func NewDispatcher() *dispatcher {
+	num := 2000
+	return NewDispatcherWithParams(num, num+num)
+}
+
+func NewDispatcherWithParams(jobs, workers int) *dispatcher {
+	d := &dispatcher{
+		make(chan job, jobs),
+		make(chan *worker, workers),
+		make([]*worker, 0, workers),
+		make(chan bool),
+	}
+	for i := 0; i < workers; i++ {
+		w := &worker{
+			make(chan job, 1),
+			make(chan bool),
+		}
+		d.workers <- w
+		d.set = append(d.set, w)
+		w.start(d)
+	}
+	return d
 }
