@@ -71,6 +71,7 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 		mi.ErrCode = CanNotGetMediaInfo
 	}
 	_ = json.Unmarshal(out, &vi)
+	mi.VideoInfo = *vi
 
 	cmd = exec.Command("youtube-dl", "-g", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", youtubeURL)
 	resp, err := cmd.CombinedOutput()
