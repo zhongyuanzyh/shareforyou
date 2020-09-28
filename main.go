@@ -154,11 +154,14 @@ type (
 func (j *Job) Do() {
 	log.Println("开始执行Do方法了")
 	var rsp []byte
-	if j.v.Ext == "mp3" {
+	if j.v.Ext == "mp3" && j.v.VideoDuration <= 1800 {
 		rsp = fileDownload(j.v.Audio(), j.v.Title, j.v.Ext, j.m)
-	} else if j.v.Ext == "mp4" {
+	} else if j.v.Ext == "mp4" && j.v.VideoDuration <= 1800 {
 		rsp = fileDownload(j.v.Video(), j.v.Title, j.v.Ext, j.m)
-	} else if j.v.VideoDuration > 1800 {
+	} else if j.v.Ext == "mp3" && j.v.VideoDuration > 1800 {
+		j.m.ErrCode = VideoDurationOver
+		rsp, _ = json.Marshal(j.m)
+	} else if j.v.Ext == "mp4" && j.v.VideoDuration > 1800 {
 		j.m.ErrCode = VideoDurationOver
 		rsp, _ = json.Marshal(j.m)
 	}
