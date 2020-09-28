@@ -79,6 +79,30 @@ body{
     height: 44px;
     overflow: hidden;
 }
+
+#errorContent{
+    display: none;
+    width: 93%;
+    height: 90px;
+    background-color: #f4f4f4;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    padding: 0 3.3% 20px 3.3%;
+}
+#errorTitle{
+    color: #0087cf;
+    font-size: 15px;
+    font-family: sans-serif;
+    font-weight: bolder;
+    line-height: 44px;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+    height: 44px;
+    overflow: hidden;
+}
+
 #downloadLink{
     background-color: #fefefe;
     height: 42px;

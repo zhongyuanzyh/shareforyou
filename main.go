@@ -19,9 +19,9 @@ import (
 )
 
 const (
-	CanNotGetMediaInfo   = 101
-	CanNotGetRealAddress = 102
-	ConvertSuccess       = 103
+	CanNotGetMediaInfo = 101
+	VideoDurationOver  = 102
+	ConvertSuccess     = 103
 )
 
 var workerPool = NewDispatcher()
@@ -158,6 +158,9 @@ func (j *Job) Do() {
 		rsp = fileDownload(j.v.Audio(), j.v.Title, j.v.Ext, j.m)
 	} else if j.v.Ext == "mp4" {
 		rsp = fileDownload(j.v.Video(), j.v.Title, j.v.Ext, j.m)
+	} else if j.v.VideoDuration > 1800 {
+		j.m.ErrCode = VideoDurationOver
+		rsp, _ = json.Marshal(j.m)
 	}
 	j.Ch <- rsp
 }
