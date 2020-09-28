@@ -158,14 +158,15 @@ func (j *Job) Do() {
 		rsp = fileDownload(j.v.Audio(), j.v.Title, j.v.Ext, j.m)
 	} else if j.v.Ext == "mp4" && j.v.VideoDuration <= 1800 {
 		rsp = fileDownload(j.v.Video(), j.v.Title, j.v.Ext, j.m)
-		_ = fileDownload(j.v.Audio(), j.v.Title, j.v.Ext, j.m)
-		inputMp4 := fmt.Sprintf("%s%s", j.v.Title, ".mp4")
-		inputMp3 := fmt.Sprintf("%s%s", j.v.Title, ".mp3")
+		_ = fileDownload(j.v.Audio(), j.v.Title, "mp3", j.m)
+		inputMp4 := fmt.Sprintf("%s%s%s", "/data/youtube-dl/", j.v.Title, ".mp4")
+		inputMp3 := fmt.Sprintf("%s%s%s", "/data/youtube-dl", j.v.Title, ".mp3")
 		codeMp4 := fmt.Sprintf("%s", " -c:v copy")
 		codeMp3 := fmt.Sprintf("%s", " -c:a mp3")
 		outputMp4 := fmt.Sprintf("%s%s", "/data/youtube-dl/code/", inputMp4)
-		ffmpegCmd := exec.Command("ffmpeg", "-i", inputMp4, "-i", inputMp3, codeMp4, codeMp3, "-o", outputMp4)
-		_, _ = ffmpegCmd.CombinedOutput()
+		ffmpegCmd := exec.Command("ffmpeg", "-i", inputMp4, "-i", inputMp3, codeMp4, codeMp3, outputMp4)
+		outCmd, _ := ffmpegCmd.CombinedOutput()
+		log.Printf("ffmpeg命令执行的结果日志%s", string(outCmd))
 	} else if j.v.Ext == "mp3" && j.v.VideoDuration > 1800 {
 		j.m.ErrCode = VideoDurationOver
 		rsp, _ = json.Marshal(j.m)
