@@ -49,20 +49,24 @@ type MediaInfo struct {
 	ErrCode          int       `json:"error_code"`
 }
 
+func init() {
+	go workerPool.Run()
+}
 func main() {
 	http.HandleFunc("/mpx", youtubeMp3)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/mpx", youtubeMp3)
 	_ = http.ListenAndServe(":8888", mux)
-	go workerPool.Run()
+
 }
 
-var vi *VideoInfo
-var mi MediaInfo
-var cmd *exec.Cmd
 var workerPool = NewDispatcher()
 
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
+	var vi *VideoInfo
+	var mi MediaInfo
+	var cmd *exec.Cmd
+
 	mi.ErrCode = ConvertSuccess
 	_ = r.ParseForm()
 	youtubeURL := r.Form.Get("video")
@@ -168,11 +172,11 @@ type Job struct {
 
 func (j *Job) Do() {
 	log.Println("开始执行Do方法了")
-	rsp := fileDownload(j.v.RequestedFormats[1].RealURL, j.v.Title, j.v.Ext)
+	rsp := fileDownload(j.v.RequestedFormats[1].RealURL, j.v.Title, j.v.Ext, j.m)
 	j.Ch <- rsp
 }
 
-func fileDownload(url string, outputFileName string, ext string) []byte {
+func fileDownload(url string, outputFileName string, ext string, media *MediaInfo) []byte {
 	startTime := time.Now()
 	//var url string //下载文件的地址
 	//url = "https://download.jetbrains.com/go/goland-2020.2.2.dmg"
@@ -182,7 +186,7 @@ func fileDownload(url string, outputFileName string, ext string) []byte {
 		log.Fatal(err)
 	}
 	fmt.Printf("\n 文件下载完成耗时: %f second\n", time.Now().Sub(startTime).Seconds())
-	rsp, _ := json.Marshal(mi)
+	rsp, _ := json.Marshal(&media)
 	return rsp
 }
 
@@ -350,6 +354,7 @@ func (w *worker) start(d *dispatcher) {
 				//go func(j job) {
 				j.Do()
 				log.Println("回收已经执行过的job所在的worker到调度器中")
+				time.Sleep(time.Second * 1)
 				d.workers <- w
 				//}(j)
 			case <-w.quit:
