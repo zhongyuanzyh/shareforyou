@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os/exec"
-	"strings"
 	//"encoding/hex"
 	"errors"
 	"fmt"
@@ -37,6 +36,65 @@ type VideoInfo struct {
 	Extractor        string       `json:"extractor"`
 	RequestedFormats []FormatInfo `json:"requested_formats"`
 }
+
+func (v *VideoInfo) Audio() (realURL string) {
+	for _, value := range v.RequestedFormats {
+		if value.Width == 0 && value.Height == 0 {
+			realURL = value.URL
+		}
+	}
+	return realURL
+}
+
+func (v *VideoInfo) Video() (realURL string) {
+	if v.P1080() != "" {
+		return v.P1080()
+	} else if v.P720() != "" {
+		return v.P720()
+	} else if v.P480() != "" {
+		return v.P480()
+	} else if v.P360() != "" {
+		return v.P360()
+	}
+	return v.Audio()
+}
+
+func (v *VideoInfo) P360() (realURL string) {
+	for _, value := range v.RequestedFormats {
+		if value.Width == 640 && value.Height == 360 {
+			realURL = value.URL
+		}
+	}
+	return realURL
+}
+
+func (v *VideoInfo) P480() (realURL string) {
+	for _, value := range v.RequestedFormats {
+		if value.Width == 854 && value.Height == 480 {
+			realURL = value.URL
+		}
+	}
+	return realURL
+}
+
+func (v *VideoInfo) P720() (realURL string) {
+	for _, value := range v.RequestedFormats {
+		if value.Width == 1280 && value.Height == 720 {
+			realURL = value.URL
+		}
+	}
+	return realURL
+}
+
+func (v *VideoInfo) P1080() (realURL string) {
+	for _, value := range v.RequestedFormats {
+		if value.Width == 1920 && value.Height == 1080 {
+			realURL = value.URL
+		}
+	}
+	return realURL
+}
+
 type FormatInfo struct {
 	FileSize  int    `json:"filesize"`
 	FormatID  string `json:"format_id"`
@@ -44,18 +102,6 @@ type FormatInfo struct {
 	Width     int    `json:"width"`
 	Height    int    `json:"height"`
 	URL       string `json:"url"`
-}
-
-func (f *FormatInfo) Audio() string {
-	return f.URL
-}
-
-func (f *FormatInfo) P720() string {
-
-}
-
-func (f *FormatInfo) P1080() string {
-
 }
 
 type MediaInfo struct {
@@ -107,7 +153,12 @@ type (
 
 func (j *Job) Do() {
 	log.Println("开始执行Do方法了")
-	rsp := fileDownload(j.v.RequestedFormats[1].URL, j.v.Title, j.v.Ext, j.m)
+	var rsp []byte
+	if j.v.Ext == "mp3" {
+		rsp = fileDownload(j.v.Audio(), j.v.Title, j.v.Ext, j.m)
+	} else if j.v.Ext == "mp4" {
+		rsp = fileDownload(j.v.Video(), j.v.Title, j.v.Ext, j.m)
+	}
 	j.Ch <- rsp
 }
 
@@ -125,7 +176,7 @@ func main() {
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	var vi *VideoInfo
 	var mi MediaInfo
-	var cmd *exec.Cmd
+	//var cmd *exec.Cmd
 
 	mi.ErrCode = ConvertSuccess
 	_ = r.ParseForm()
@@ -138,19 +189,18 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 		mi.ErrCode = CanNotGetMediaInfo
 	}
 	_ = json.Unmarshal(out, &vi)
-	log.Printf("验证只执行一次命令之后的json串获取null的情况s%", string(out))
 	vi.Ext = mediaFormat
 	mi.VideoInfo = *vi
 
-	cmd = exec.Command("youtube-dl", "-g", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", youtubeURL)
-	resp, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Print("get the real file address failed", err)
-		mi.ErrCode = CanNotGetRealAddress
-	}
-	var s []string
-	s = strings.Split(string(resp), "\n")
-	vi.RequestedFormats[1].URL = s[1]
+	//cmd = exec.Command("youtube-dl", "-g", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", youtubeURL)
+	//resp, err := cmd.CombinedOutput()
+	//if err != nil {
+	//	log.Print("get the real file address failed", err)
+	//	mi.ErrCode = CanNotGetRealAddress
+	//}
+	//var s []string
+	//s = strings.Split(string(resp), "\n")
+	//vi.RequestedFormats[1].URL = s[1]
 
 	switch mediaFormat {
 	case "mp4":
