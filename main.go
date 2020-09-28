@@ -25,6 +25,8 @@ const (
 	ConvertSuccess        = 103
 )
 
+var workerPool = NewDispatcher()
+
 type VideoInfo struct {
 	UploadDate       string        `json:"upload_date"`
 	VideoDuration    int           `json:"duration"`
@@ -49,18 +51,62 @@ type MediaInfo struct {
 	ErrCode          int       `json:"error_code"`
 }
 
+//FileDownloader 文件下载器
+type FileDownloader struct {
+	fileSize       int
+	url            string
+	outputFileName string
+	totalPart      int //下载线程
+	outputDir      string
+	doneFilePart   []filePart
+}
+
+//filePart 文件分片
+type filePart struct {
+	Index int    //文件分片的序号
+	From  int    //开始byte
+	To    int    //解决byte
+	Data  []byte //http下载得到的文件内容
+}
+
+type Job struct {
+	v  *VideoInfo
+	m  *MediaInfo
+	Ch chan []byte
+}
+
+type (
+	job interface {
+		Do()
+	}
+	worker struct {
+		jobs chan job
+		quit chan bool
+	}
+	dispatcher struct {
+		jobs    chan job
+		workers chan *worker
+		set     []*worker
+		quit    chan bool
+	}
+)
+
+func (j *Job) Do() {
+	log.Println("开始执行Do方法了")
+	rsp := fileDownload(j.v.RequestedFormats[1].RealURL, j.v.Title, j.v.Ext, j.m)
+	j.Ch <- rsp
+}
+
 func init() {
 	go workerPool.Run()
 }
+
 func main() {
 	http.HandleFunc("/mpx", youtubeMp3)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/mpx", youtubeMp3)
 	_ = http.ListenAndServe(":8888", mux)
-
 }
-
-var workerPool = NewDispatcher()
 
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	var vi *VideoInfo
@@ -126,16 +172,6 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 //	return filename
 //}
 
-//FileDownloader 文件下载器
-type FileDownloader struct {
-	fileSize       int
-	url            string
-	outputFileName string
-	totalPart      int //下载线程
-	outputDir      string
-	doneFilePart   []filePart
-}
-
 //NewFileDownloader .
 func NewFileDownloader(url, outputFileName, outputDir string, totalPart int) *FileDownloader {
 	if outputDir == "" {
@@ -156,33 +192,10 @@ func NewFileDownloader(url, outputFileName, outputDir string, totalPart int) *Fi
 
 }
 
-//filePart 文件分片
-type filePart struct {
-	Index int    //文件分片的序号
-	From  int    //开始byte
-	To    int    //解决byte
-	Data  []byte //http下载得到的文件内容
-}
-
-type Job struct {
-	v  *VideoInfo
-	m  *MediaInfo
-	Ch chan []byte
-}
-
-func (j *Job) Do() {
-	log.Println("开始执行Do方法了")
-	rsp := fileDownload(j.v.RequestedFormats[1].RealURL, j.v.Title, j.v.Ext, j.m)
-	j.Ch <- rsp
-}
-
 func fileDownload(url string, outputFileName string, ext string, media *MediaInfo) []byte {
 	startTime := time.Now()
-	//var url string //下载文件的地址
-	//url = "https://download.jetbrains.com/go/goland-2020.2.2.dmg"
 	downloader := NewFileDownloader(url, outputFileName+"."+ext, "/data/youtube-dl", 10)
 	if err := downloader.Run(); err != nil {
-		// fmt.Printf("\n%s", err)
 		log.Fatal(err)
 	}
 	fmt.Printf("\n 文件下载完成耗时: %f second\n", time.Now().Sub(startTime).Seconds())
@@ -203,14 +216,9 @@ func (d *FileDownloader) head() (int, error) {
 	if resp.StatusCode > 299 {
 		return 0, errors.New(fmt.Sprintf("Can't process, response is %v", resp.StatusCode))
 	}
-	//检查是否支持 断点续传
-	//https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Ranges
 	if resp.Header.Get("Accept-Ranges") != "bytes" {
 		return 0, errors.New("服务器不支持文件断点续传")
 	}
-
-	//d.outputFileName = parseFileInfoFrom(resp)
-	//https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Length
 	return strconv.Atoi(resp.Header.Get("Content-Length"))
 }
 
@@ -326,24 +334,7 @@ func (d FileDownloader) mergeFileParts() error {
 	//	log.Println("文件SHA-256校验成功")
 	//}
 	return nil
-
 }
-
-type (
-	job interface {
-		Do()
-	}
-	worker struct {
-		jobs chan job
-		quit chan bool
-	}
-	dispatcher struct {
-		jobs    chan job
-		workers chan *worker
-		set     []*worker
-		quit    chan bool
-	}
-)
 
 func (w *worker) start(d *dispatcher) {
 	log.Println("开启协程监听worker的job通道是否有job")
@@ -398,7 +389,7 @@ func (d *dispatcher) Run() {
 
 func NewDispatcher() *dispatcher {
 	log.Println("进入调度器新建")
-	num := 2
+	num := 20
 	return NewDispatcherWithParams(num, num+num)
 }
 
@@ -418,6 +409,6 @@ func NewDispatcherWithParams(jobs, workers int) *dispatcher {
 		d.set = append(d.set, w)
 		w.start(d)
 	}
-	log.Println("创建了一个4000容量的调度器")
+	log.Println("创建了一个40容量的调度器")
 	return d
 }
