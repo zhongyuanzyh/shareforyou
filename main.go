@@ -376,10 +376,10 @@ func (d *dispatcher) Quit() {
 }
 
 func (d *dispatcher) Run() {
-	log.Println("开始死循环监听属于Run开启的jobs通道")
 	for {
 		select {
 		case j := <-d.jobs:
+			log.Println("开始死循环监听属于Run开启的jobs通道")
 			w := <-d.workers
 			w.jobs <- j
 		case <-d.quit:
@@ -393,7 +393,7 @@ func (d *dispatcher) Run() {
 
 func NewDispatcher() *dispatcher {
 	log.Println("进入调度器新建")
-	num := 2000
+	num := 2
 	return NewDispatcherWithParams(num, num+num)
 }
 
