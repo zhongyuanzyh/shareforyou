@@ -20,28 +20,42 @@ import (
 )
 
 const (
-	CanNotGetMediaInfo    = 101
-	YoutubeDLCommandError = 102
-	ConvertSuccess        = 103
+	CanNotGetMediaInfo   = 101
+	CanNotGetRealAddress = 102
+	ConvertSuccess       = 103
 )
 
 var workerPool = NewDispatcher()
 
 type VideoInfo struct {
-	UploadDate       string        `json:"upload_date"`
-	VideoDuration    int           `json:"duration"`
-	Title            string        `json:"title"`
-	Ext              string        `json:"ext"`
-	Uploader         string        `json:"uploader"`
-	Description      string        `json:"description"`
-	Extractor        string        `json:"extractor"`
-	RequestedFormats [2]FormatInfo `json:"requested_formats"`
+	UploadDate       string       `json:"upload_date"`
+	VideoDuration    int          `json:"duration"`
+	Title            string       `json:"title"`
+	Ext              string       `json:"ext"`
+	Uploader         string       `json:"uploader"`
+	Description      string       `json:"description"`
+	Extractor        string       `json:"extractor"`
+	RequestedFormats []FormatInfo `json:"requested_formats"`
 }
 type FormatInfo struct {
 	FileSize  int    `json:"filesize"`
 	FormatID  string `json:"format_id"`
 	Extension string `json:"ext"`
-	RealURL   string `json:"real_url"`
+	Width     int    `json:"width"`
+	Height    int    `json:"height"`
+	URL       string `json:"url"`
+}
+
+func (f *FormatInfo) Audio() string {
+	return f.URL
+}
+
+func (f *FormatInfo) P720() string {
+
+}
+
+func (f *FormatInfo) P1080() string {
+
 }
 
 type MediaInfo struct {
@@ -93,7 +107,7 @@ type (
 
 func (j *Job) Do() {
 	log.Println("开始执行Do方法了")
-	rsp := fileDownload(j.v.RequestedFormats[1].RealURL, j.v.Title, j.v.Ext, j.m)
+	rsp := fileDownload(j.v.RequestedFormats[1].URL, j.v.Title, j.v.Ext, j.m)
 	j.Ch <- rsp
 }
 
@@ -124,6 +138,7 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 		mi.ErrCode = CanNotGetMediaInfo
 	}
 	_ = json.Unmarshal(out, &vi)
+	log.Printf("验证只执行一次命令之后的json串获取null的情况s%", string(out))
 	vi.Ext = mediaFormat
 	mi.VideoInfo = *vi
 
@@ -131,10 +146,11 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	resp, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Print("get the real file address failed", err)
+		mi.ErrCode = CanNotGetRealAddress
 	}
 	var s []string
 	s = strings.Split(string(resp), "\n")
-	vi.RequestedFormats[1].RealURL = s[1]
+	vi.RequestedFormats[1].URL = s[1]
 
 	switch mediaFormat {
 	case "mp4":
