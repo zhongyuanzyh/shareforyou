@@ -342,12 +342,14 @@ type (
 )
 
 func (w *worker) start(d *dispatcher) {
+	log.Println("开启协程监听worker的job通道是否有job")
 	go func() {
 		for {
 			select {
 			case j := <-w.jobs:
 				//go func(j job) {
 				j.Do()
+				log.Println("回收已经执行过的job所在的worker到调度器中")
 				d.workers <- w
 				//}(j)
 			case <-w.quit:
@@ -358,19 +360,23 @@ func (w *worker) start(d *dispatcher) {
 }
 
 func (w *worker) stop() {
+	log.Println("给worker一个停止的信号")
 	w.quit <- true
 }
 
 func (d *dispatcher) Push(j job) {
+	log.Println("推送job接口任务到调度器的jobs通道")
 	d.jobs <- j
 }
 
 func (d *dispatcher) Quit() {
+	log.Println("给调度器一个停止的信号")
 	d.quit <- true
 	time.Sleep(500 * time.Millisecond)
 }
 
 func (d *dispatcher) Run() {
+	log.Println("开始死循环监听属于Run开启的jobs通道")
 	for {
 		select {
 		case j := <-d.jobs:
@@ -386,6 +392,7 @@ func (d *dispatcher) Run() {
 }
 
 func NewDispatcher() *dispatcher {
+	log.Println("进入调度器新建")
 	num := 2000
 	return NewDispatcherWithParams(num, num+num)
 }
@@ -406,5 +413,6 @@ func NewDispatcherWithParams(jobs, workers int) *dispatcher {
 		d.set = append(d.set, w)
 		w.start(d)
 	}
+	log.Println("创建了一个4000容量的调度器")
 	return d
 }
