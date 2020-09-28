@@ -158,6 +158,14 @@ func (j *Job) Do() {
 		rsp = fileDownload(j.v.Audio(), j.v.Title, j.v.Ext, j.m)
 	} else if j.v.Ext == "mp4" && j.v.VideoDuration <= 1800 {
 		rsp = fileDownload(j.v.Video(), j.v.Title, j.v.Ext, j.m)
+		_ = fileDownload(j.v.Audio(), j.v.Title, j.v.Ext, j.m)
+		inputMp4 := fmt.Sprintf("%s%s", j.v.Title, ".mp4")
+		inputMp3 := fmt.Sprintf("%s%s", j.v.Title, ".mp3")
+		codeMp4 := fmt.Sprintf("%s", " -c:v copy")
+		codeMp3 := fmt.Sprintf("%s", " -c:a mp3")
+		outputMp4 := fmt.Sprintf("%s%s", "/data/youtube-dl/code/", inputMp4)
+		ffmpegCmd := exec.Command("ffmpeg", "-i", inputMp4, "-i", inputMp3, codeMp4, codeMp3, "-o", outputMp4)
+		_, _ = ffmpegCmd.CombinedOutput()
 	} else if j.v.Ext == "mp3" && j.v.VideoDuration > 1800 {
 		j.m.ErrCode = VideoDurationOver
 		rsp, _ = json.Marshal(j.m)
@@ -197,16 +205,6 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	_ = json.Unmarshal(out, &vi)
 	vi.Ext = mediaFormat
 	mi.VideoInfo = *vi
-
-	//cmd = exec.Command("youtube-dl", "-g", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", youtubeURL)
-	//resp, err := cmd.CombinedOutput()
-	//if err != nil {
-	//	log.Print("get the real file address failed", err)
-	//	mi.ErrCode = CanNotGetRealAddress
-	//}
-	//var s []string
-	//s = strings.Split(string(resp), "\n")
-	//vi.RequestedFormats[1].URL = s[1]
 
 	switch mediaFormat {
 	case "mp4":
