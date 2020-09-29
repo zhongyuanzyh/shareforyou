@@ -109,6 +109,7 @@ type MediaInfo struct {
 	DownloadUrl      string    `json:"download_url"`
 	DownloadProgress float64   `json:"download_progress"`
 	ErrCode          int       `json:"error_code"`
+	OriginalURL      string    `json:"original_url"`
 }
 
 //FileDownloader 文件下载器
@@ -157,7 +158,8 @@ func (j *Job) Do() {
 	if j.v.Ext == "mp3" && j.v.VideoDuration <= 1800 {
 		rsp = fileDownload(j.v.Audio(), j.v.Title, j.v.Ext, j.m)
 	} else if j.v.Ext == "mp4" && j.v.VideoDuration <= 1800 {
-		rsp = fileDownload(j.v.Video(), j.v.Title, j.v.Ext, j.m)
+		//老方法处理文件下载并转码，但是失败了，因为mp3和mp4无法合并成mp4；如果先webm，然后在rename成mp4，则部分可以部分不行
+		/*rsp = fileDownload(j.v.Video(), j.v.Title, j.v.Ext, j.m)
 		_ = fileDownload(j.v.Audio(), j.v.Title, "mp3", j.m)
 		inputMp4 := fmt.Sprintf("%s%s%s", "/data/youtube-dl/", j.v.Title, ".mp4")
 		inputMp3 := fmt.Sprintf("%s%s%s", "/data/youtube-dl/", j.v.Title, ".mp3")
@@ -166,7 +168,11 @@ func (j *Job) Do() {
 		_, _ = ffmpegCmd.CombinedOutput()
 		rmCmd := exec.Command("rm", "-rf", inputMp4, " ", inputMp3)
 		_, _ = rmCmd.CombinedOutput()
-		_ = os.Rename(outputWebm, inputMp4)
+		_ = os.Rename(outputWebm, inputMp4)*/
+		//新方法直接使用youtube-dl命令来处理
+		outputMp4 := fmt.Sprintf("%s%s%s", "/data/youtube-dl/", j.v.Title, ".mp4")
+		youtubeDlCmd := exec.Command("youtube-dl", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", j.m.OriginalURL, "-o", outputMp4)
+		_, _ = youtubeDlCmd.CombinedOutput()
 	} else if j.v.Ext == "mp3" && j.v.VideoDuration > 1800 {
 		j.m.ErrCode = VideoDurationOver
 		rsp, _ = json.Marshal(j.m)
@@ -206,6 +212,7 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	_ = json.Unmarshal(out, &vi)
 	vi.Ext = mediaFormat
 	mi.VideoInfo = *vi
+	mi.OriginalURL = youtubeURL
 
 	switch mediaFormat {
 	case "mp4":
