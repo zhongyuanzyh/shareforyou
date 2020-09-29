@@ -120,7 +120,6 @@ type FileDownloader struct {
 	totalPart      int //下载线程
 	outputDir      string
 	doneFilePart   []filePart
-	progressChan   chan string
 }
 
 //filePart 文件分片
@@ -134,7 +133,6 @@ type filePart struct {
 type Job struct {
 	v  *VideoInfo
 	m  *MediaInfo
-	f  *FileDownloader
 	Ch chan []byte
 }
 
@@ -270,8 +268,8 @@ func NewFileDownloader(url, outputFileName, outputDir string, totalPart int) *Fi
 		outputDir:      outputDir,
 		totalPart:      totalPart,
 		doneFilePart:   make([]filePart, totalPart),
-		progressChan:   make(chan string, totalPart),
 	}
+
 }
 
 func fileDownload(url string, outputFileName string, ext string, media *MediaInfo) []byte {
@@ -280,19 +278,9 @@ func fileDownload(url string, outputFileName string, ext string, media *MediaInf
 	if err := downloader.Run(); err != nil {
 		log.Fatal(err)
 	}
-	downloader.Progress()
 	fmt.Printf("\n 文件下载完成耗时: %f second\n", time.Now().Sub(startTime).Seconds())
 	rsp, _ := json.Marshal(&media)
 	return rsp
-}
-
-func (d *FileDownloader) Progress() {
-	for {
-		select {
-		case p := <-d.progressChan:
-			log.Printf("该任务的进度值是：%s", p)
-		}
-	}
 }
 
 //head 获取要下载的文件的基本信息(header) 使用HTTP Method Head
@@ -419,7 +407,6 @@ func (d FileDownloader) mergeFileParts() error {
 		_, _ = mergedFile.Write(s.Data)
 		hash.Write(s.Data)
 		totalSize += len(s.Data)
-		d.progressChan <- fmt.Sprintf("%.2f", float64(totalSize/d.fileSize))
 	}
 	if totalSize != d.fileSize {
 		return errors.New("文件不完整")
