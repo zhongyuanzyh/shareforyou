@@ -152,6 +152,7 @@ type (
 	}
 )
 
+// Do方法完成音频、视频下载、时长检测
 func (j *Job) Do() {
 	log.Println("开始执行Do方法了")
 	var rsp []byte
