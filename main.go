@@ -358,7 +358,9 @@ func (d FileDownloader) downloadPart(c filePart) error {
 	if resp.StatusCode > 299 {
 		return errors.New(fmt.Sprintf("服务器错误状态码: %v", resp.StatusCode))
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 	bs, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
@@ -394,12 +396,14 @@ func (d FileDownloader) mergeFileParts() error {
 	if err != nil {
 		return err
 	}
-	defer mergedFile.Close()
+	defer func() {
+		_ = mergedFile.Close()
+	}()
 	hash := sha256.New()
 	totalSize := 0
 	for _, s := range d.doneFilePart {
 
-		mergedFile.Write(s.Data)
+		_, _ = mergedFile.Write(s.Data)
 		hash.Write(s.Data)
 		totalSize += len(s.Data)
 	}
