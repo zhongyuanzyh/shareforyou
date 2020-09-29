@@ -173,6 +173,7 @@ func (j *Job) Do() {
 		outputMp4 := fmt.Sprintf("%s%s%s", "/data/youtube-dl/", j.v.Title, ".mp4")
 		youtubeDlCmd := exec.Command("youtube-dl", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best", j.m.OriginalURL, "-o", outputMp4)
 		_, _ = youtubeDlCmd.CombinedOutput()
+		rsp, _ = json.Marshal(j.m)
 	} else if j.v.Ext == "mp3" && j.v.VideoDuration > 1800 {
 		j.m.ErrCode = VideoDurationOver
 		rsp, _ = json.Marshal(j.m)
