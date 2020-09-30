@@ -22,7 +22,6 @@ import (
 	//"strconv"
 	//"sync"
 	//"time"
-	"github.com/garyburd/redigo/redis"
 )
 
 const (
@@ -32,7 +31,6 @@ const (
 )
 
 var workerPool = NewDispatcher()
-var RPool *redis.Pool
 
 type VideoInfo struct {
 	UploadDate       string       `json:"upload_date"`
@@ -127,9 +125,8 @@ type FileDownloader struct {
 	outputFileName string
 	totalPart      int //下载线程
 	outputDir      string
+	rw             http.ResponseWriter
 	doneFilePart   []filePart
-	media          *MediaInfo
-	wr             http.ResponseWriter
 }
 
 //filePart 文件分片
@@ -144,7 +141,6 @@ type Job struct {
 	v  *VideoInfo
 	m  *MediaInfo
 	Ch chan []byte
-	w  http.ResponseWriter
 }
 
 type (
@@ -168,7 +164,7 @@ func (j *Job) Do() {
 	log.Println("开始执行Do方法了")
 	var rsp []byte
 	if j.v.Ext == "mp3" && j.v.VideoDuration <= 1800 {
-		rsp = fileDownload(j.v.Audio(), j.v.Title, j.v.Ext, j.m, j.w)
+		rsp = fileDownload(j.v.Audio(), j.v.Title, j.v.Ext, j.m)
 	} else if j.v.Ext == "mp4" && j.v.VideoDuration <= 1800 {
 		//老方法处理文件下载并转码，但是失败了，因为mp3和mp4无法合并成mp4；如果先webm，然后在rename成mp4，则部分可以部分不行
 		/*rsp = fileDownload(j.v.Video(), j.v.Title, j.v.Ext, j.m)
@@ -198,25 +194,6 @@ func (j *Job) Do() {
 
 func init() {
 	go workerPool.Run()
-	RPool = &redis.Pool{
-		Dial: func() (c redis.Conn, e error) {
-			c, e = redis.Dial(
-				"tcp",
-				"127.0.0.1:6379",
-			)
-			if e != nil {
-				log.Println("redis初始化失败")
-				return nil, e
-			}
-			return
-		},
-		TestOnBorrow:    nil,
-		MaxIdle:         10,
-		MaxActive:       100,
-		IdleTimeout:     0,
-		Wait:            false,
-		MaxConnLifetime: 0,
-	}
 }
 
 func main() {
@@ -259,7 +236,6 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 		v:  vi,
 		m:  &mi,
 		Ch: make(chan []byte),
-		w:  w,
 	}
 
 	workerPool.Push(j)
@@ -282,9 +258,8 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 //	filename := filepath.Base(resp.Request.URL.Path)
 //	return filename
 //}
-
 //NewFileDownloader .
-func NewFileDownloader(url, outputFileName, outputDir string, totalPart int, media *MediaInfo, wr http.ResponseWriter) *FileDownloader {
+func NewFileDownloader(url, outputFileName, outputDir string, totalPart int) *FileDownloader {
 	if outputDir == "" {
 		wd, err := os.Getwd() //获取当前工作目录
 		if err != nil {
@@ -299,35 +274,18 @@ func NewFileDownloader(url, outputFileName, outputDir string, totalPart int, med
 		outputDir:      outputDir,
 		totalPart:      totalPart,
 		doneFilePart:   make([]filePart, totalPart),
-		media:          media,
-		wr:             wr,
 	}
-
 }
 
-func fileDownload(url string, outputFileName string, ext string, media *MediaInfo, wr http.ResponseWriter) []byte {
+func fileDownload(url string, outputFileName string, ext string, media *MediaInfo) []byte {
 	startTime := time.Now()
-	downloader := NewFileDownloader(url, outputFileName+"."+ext, "/data/youtube-dl", 10, media, wr)
+	downloader := NewFileDownloader(url, outputFileName+"."+ext, "/data/youtube-dl", 10)
 	if err := downloader.Run(); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("\n 文件下载完成耗时: %f second\n", time.Now().Sub(startTime).Seconds())
-	go downloader.progress()
 	rsp, _ := json.Marshal(&media)
 	return rsp
-}
-
-func (d *FileDownloader) progress() {
-	c := RPool.Get()
-	defer func() { _ = c.Close() }()
-	pv, err := redis.String(c.Do("GET", d.media.OriginalURL))
-	if err != nil {
-		fmt.Println("redis get failed:", err)
-	}
-	d.media.DownloadProgress, _ = strconv.ParseFloat(pv, 64)
-	rsp, _ := json.Marshal(d.media)
-	d.wr.Header().Add("Content-Type", "application/json; charset=utf-8")
-	_, _ = d.wr.Write(rsp)
 }
 
 //head 获取要下载的文件的基本信息(header) 使用HTTP Method Head
@@ -449,15 +407,10 @@ func (d FileDownloader) mergeFileParts() error {
 	}()
 	hash := sha256.New()
 	totalSize := 0
-	c := RPool.Get()
-	defer func() { _ = c.Close() }()
 	for _, s := range d.doneFilePart {
 		_, _ = mergedFile.Write(s.Data)
 		hash.Write(s.Data)
 		totalSize += len(s.Data)
-		value := fmt.Sprintf("%.2f", float64(totalSize)/float64(d.fileSize))
-		_, _ = c.Do("SET", d.media.OriginalURL, value)
-		time.Sleep(time.Second * 2)
 	}
 	if totalSize != d.fileSize {
 		return errors.New("文件不完整")
