@@ -29,7 +29,7 @@
                     console.log(data);
                     // $("#converter").hide();
                     if (parseFloat(data.progress_value) > parseFloat(limitNum.toFixed(2))){
-                        //debugger;
+                        debugger;
                         $("#progressContent").hide();
                         $("#downloadContent a")[0].innerHTML = data.video_info.title;
                         $("#downloadLink a").attr("href",data.download_url);

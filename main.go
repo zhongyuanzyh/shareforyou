@@ -411,10 +411,11 @@ func (d FileDownloader) mergeFileParts() error {
 		hash.Write(s.Data)
 		totalSize += len(s.Data)
 		type p struct {
-			ProgressValue int `json:"progress_value"`
+			ProgressValue string `json:"progress_value"`
 		}
 		var progress p
-		progress.ProgressValue = totalSize
+		value := fmt.Sprintf("%.2f", float64(totalSize)/float64(d.fileSize))
+		progress.ProgressValue = value
 		rsp, _ := json.Marshal(progress)
 		d.rw.Header().Add("Content-Type", "application/json; charset=utf-8")
 		_, _ = d.rw.Write(rsp)
