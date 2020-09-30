@@ -324,12 +324,8 @@ func (d *FileDownloader) progress() {
 	if err != nil {
 		fmt.Println("redis get failed:", err)
 	}
-	type p struct {
-		ProgressValue string `json:"progress_value"`
-	}
-	var progress p
-	progress.ProgressValue = pv
-	rsp, _ := json.Marshal(progress)
+	d.media.DownloadProgress, _ = strconv.ParseFloat(pv, 64)
+	rsp, _ := json.Marshal(d.media)
 	d.wr.Header().Add("Content-Type", "application/json; charset=utf-8")
 	_, _ = d.wr.Write(rsp)
 }
