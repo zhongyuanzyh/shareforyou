@@ -72,7 +72,15 @@
 
                 }
             });
-            $(function () {
+            $(document).ready(function(){
+                $(document).ajaxStart(function(){
+                    $("#loading").show();
+                });
+               /* $("button").click(function(){
+                    $("div").load("demo_ajax_load.php");
+                });*/
+            });
+           /* $(function () {
                 $("#loading").ajaxStart(function () {
                     //一个div，用来遮挡页面，请求过程中，不可操作页面
                     var lockwin = $(this);
@@ -94,7 +102,7 @@
                     //设置图片隐藏
                     $("#loading img").css("display", "none");
                 });
-            });
+            });*/
             /*var setID = setInterval(function () {
                 $.ajax(getProgress)
             },2000);*/
