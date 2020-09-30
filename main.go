@@ -22,17 +22,17 @@ import (
 	//"strconv"
 	//"sync"
 	//"time"
-	"github.com/gofrs/uuid"
+	"github.com/garyburd/redigo/redis"
 )
 
 const (
 	CanNotGetMediaInfo = 101
 	VideoDurationOver  = 102
 	ConvertSuccess     = 103
-	UUIDCanNotGenerate = 104
 )
 
 var workerPool = NewDispatcher()
+var RPool *redis.Pool
 
 type VideoInfo struct {
 	UploadDate       string       `json:"upload_date"`
@@ -118,7 +118,6 @@ type MediaInfo struct {
 	DownloadProgress float64   `json:"download_progress"`
 	ErrCode          int       `json:"error_code"`
 	OriginalURL      string    `json:"original_url"`
-	UUID             string    `json:"uuid"`
 }
 
 //FileDownloader 文件下载器
@@ -129,6 +128,7 @@ type FileDownloader struct {
 	totalPart      int //下载线程
 	outputDir      string
 	doneFilePart   []filePart
+	media          *MediaInfo
 }
 
 //filePart 文件分片
@@ -196,25 +196,59 @@ func (j *Job) Do() {
 
 func init() {
 	go workerPool.Run()
+	RPool = &redis.Pool{
+		Dial: func() (c redis.Conn, e error) {
+			c, e = redis.Dial(
+				"tcp",
+				"127.0.0.1:6379",
+			)
+			if e != nil {
+				log.Println("redis初始化失败")
+				return nil, e
+			}
+			return
+		},
+		TestOnBorrow:    nil,
+		MaxIdle:         10,
+		MaxActive:       100,
+		IdleTimeout:     0,
+		Wait:            false,
+		MaxConnLifetime: 0,
+	}
 }
 
 func main() {
 	http.HandleFunc("/mpx", youtubeMp3)
+	http.HandleFunc("/progress", youtubeProgress)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/mpx", youtubeMp3)
+	mux.HandleFunc("/progress", youtubeProgress)
 	_ = http.ListenAndServe(":8888", mux)
+}
+
+func youtubeProgress(w http.ResponseWriter, r *http.Request) {
+	_ = r.ParseForm()
+	youtubeURL := r.Form.Get("video")
+	c := RPool.Get()
+	defer func() { _ = c.Close() }()
+	pv, err := redis.String(c.Do("GET", youtubeURL))
+	if err != nil {
+		fmt.Println("redis get failed:", err)
+	}
+	type p struct {
+		ProgressValue string `json:"progress_value"`
+	}
+	var progress p
+	progress.ProgressValue = pv
+	rsp, _ := json.Marshal(progress)
+	w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	_, _ = w.Write(rsp)
 }
 
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	var vi *VideoInfo
 	var mi MediaInfo
 	//var cmd *exec.Cmd
-	u2, err := uuid.NewV4()
-	if err != nil {
-		log.Printf("failed to generate UUID: %v", err)
-		mi.ErrCode = UUIDCanNotGenerate
-	}
-	mi.UUID = u2.String()
 
 	mi.ErrCode = ConvertSuccess
 	_ = r.ParseForm()
@@ -268,7 +302,7 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 //}
 
 //NewFileDownloader .
-func NewFileDownloader(url, outputFileName, outputDir string, totalPart int) *FileDownloader {
+func NewFileDownloader(url, outputFileName, outputDir string, totalPart int, media *MediaInfo) *FileDownloader {
 	if outputDir == "" {
 		wd, err := os.Getwd() //获取当前工作目录
 		if err != nil {
@@ -283,13 +317,14 @@ func NewFileDownloader(url, outputFileName, outputDir string, totalPart int) *Fi
 		outputDir:      outputDir,
 		totalPart:      totalPart,
 		doneFilePart:   make([]filePart, totalPart),
+		media:          media,
 	}
 
 }
 
 func fileDownload(url string, outputFileName string, ext string, media *MediaInfo) []byte {
 	startTime := time.Now()
-	downloader := NewFileDownloader(url, outputFileName+"."+ext, "/data/youtube-dl", 10)
+	downloader := NewFileDownloader(url, outputFileName+"."+ext, "/data/youtube-dl", 10, media)
 	if err := downloader.Run(); err != nil {
 		log.Fatal(err)
 	}
@@ -417,11 +452,15 @@ func (d FileDownloader) mergeFileParts() error {
 	}()
 	hash := sha256.New()
 	totalSize := 0
+	c := RPool.Get()
+	defer func() { _ = c.Close() }()
 	for _, s := range d.doneFilePart {
-
 		_, _ = mergedFile.Write(s.Data)
 		hash.Write(s.Data)
 		totalSize += len(s.Data)
+		value := fmt.Sprintf("%.2f", float64(totalSize)/float64(d.fileSize))
+		_, _ = c.Do("SET", d.media.OriginalURL, value)
+		time.Sleep(time.Second * 2)
 	}
 	if totalSize != d.fileSize {
 		return errors.New("文件不完整")
