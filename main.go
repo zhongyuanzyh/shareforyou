@@ -5,23 +5,31 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
+	"path/filepath"
+	"strconv"
+	"sync"
+	"time"
+
 	//"encoding/hex"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	//"mime"
-	"os"
-	"path/filepath"
-	"strconv"
-	"sync"
-	"time"
+	//"os"
+	//"path/filepath"
+	//"strconv"
+	//"sync"
+	//"time"
+	"github.com/gofrs/uuid"
 )
 
 const (
 	CanNotGetMediaInfo = 101
 	VideoDurationOver  = 102
 	ConvertSuccess     = 103
+	UUIDCanNotGenerate = 104
 )
 
 var workerPool = NewDispatcher()
@@ -110,6 +118,7 @@ type MediaInfo struct {
 	DownloadProgress float64   `json:"download_progress"`
 	ErrCode          int       `json:"error_code"`
 	OriginalURL      string    `json:"original_url"`
+	UUID             string    `json:"uuid"`
 }
 
 //FileDownloader 文件下载器
@@ -200,6 +209,12 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	var vi *VideoInfo
 	var mi MediaInfo
 	//var cmd *exec.Cmd
+	u2, err := uuid.NewV4()
+	if err != nil {
+		log.Printf("failed to generate UUID: %v", err)
+		mi.ErrCode = UUIDCanNotGenerate
+	}
+	mi.UUID = u2.String()
 
 	mi.ErrCode = ConvertSuccess
 	_ = r.ParseForm()
