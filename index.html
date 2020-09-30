@@ -49,9 +49,7 @@
                 data: $('#form1').serialize(),
                 success: function (data) {
                     console.log(data);
-                    $("#converter").hide();
-                    $("#progressContent").show();
-                   /* if (data.error_code === 102 ){
+                    if (data.error_code === 102 ){
                         $("#converter").hide();
                         $("#errorValue")[0].innerHTML = "您下载的视频时长超过了30分钟，不好意思，我们暂不支持！";
                         $("#errorContent").show();
@@ -64,16 +62,16 @@
                         $("#converter").hide();
                         $("#errorValue")[0].innerHTML = "获取视频信息出错，请检查视频链接是否正确！";
                         $("#errorContent").show();
-                    }*/
+                    }
                 },
                 /*$("#converter form #submit").hide();*/
                 error : function(request) {
                     alert("异常！");
                 }
             });
-            var setID = setInterval(function () {
+            /*var setID = setInterval(function () {
                 $.ajax(getProgress)
-            },2000);
+            },2000);*/
         }
     </script>
 </head>
