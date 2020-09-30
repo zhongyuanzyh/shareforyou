@@ -119,6 +119,7 @@ type FileDownloader struct {
 	outputFileName string
 	totalPart      int //下载线程
 	outputDir      string
+	rw             http.ResponseWriter
 	doneFilePart   []filePart
 }
 
@@ -133,6 +134,7 @@ type filePart struct {
 type Job struct {
 	v  *VideoInfo
 	m  *MediaInfo
+	rw http.ResponseWriter
 	Ch chan []byte
 }
 
@@ -157,7 +159,7 @@ func (j *Job) Do() {
 	log.Println("开始执行Do方法了")
 	var rsp []byte
 	if j.v.Ext == "mp3" && j.v.VideoDuration <= 1800 {
-		rsp = fileDownload(j.v.Audio(), j.v.Title, j.v.Ext, j.m)
+		rsp = fileDownload(j.v.Audio(), j.v.Title, j.v.Ext, j.m, j.rw)
 	} else if j.v.Ext == "mp4" && j.v.VideoDuration <= 1800 {
 		//老方法处理文件下载并转码，但是失败了，因为mp3和mp4无法合并成mp4；如果先webm，然后在rename成mp4，则部分可以部分不行
 		/*rsp = fileDownload(j.v.Video(), j.v.Title, j.v.Ext, j.m)
@@ -228,6 +230,7 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	j := &Job{
 		v:  vi,
 		m:  &mi,
+		rw: w,
 		Ch: make(chan []byte),
 	}
 
@@ -253,7 +256,7 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 //}
 
 //NewFileDownloader .
-func NewFileDownloader(url, outputFileName, outputDir string, totalPart int) *FileDownloader {
+func NewFileDownloader(url, outputFileName, outputDir string, totalPart int, w http.ResponseWriter) *FileDownloader {
 	if outputDir == "" {
 		wd, err := os.Getwd() //获取当前工作目录
 		if err != nil {
@@ -267,14 +270,15 @@ func NewFileDownloader(url, outputFileName, outputDir string, totalPart int) *Fi
 		outputFileName: outputFileName,
 		outputDir:      outputDir,
 		totalPart:      totalPart,
+		rw:             w,
 		doneFilePart:   make([]filePart, totalPart),
 	}
 
 }
 
-func fileDownload(url string, outputFileName string, ext string, media *MediaInfo) []byte {
+func fileDownload(url string, outputFileName string, ext string, media *MediaInfo, w http.ResponseWriter) []byte {
 	startTime := time.Now()
-	downloader := NewFileDownloader(url, outputFileName+"."+ext, "/data/youtube-dl", 10)
+	downloader := NewFileDownloader(url, outputFileName+"."+ext, "/data/youtube-dl", 10, w)
 	if err := downloader.Run(); err != nil {
 		log.Fatal(err)
 	}
@@ -403,10 +407,18 @@ func (d FileDownloader) mergeFileParts() error {
 	hash := sha256.New()
 	totalSize := 0
 	for _, s := range d.doneFilePart {
-
 		_, _ = mergedFile.Write(s.Data)
 		hash.Write(s.Data)
 		totalSize += len(s.Data)
+		type p struct {
+			ProgressValue int `json:"progress_value"`
+		}
+		var progress p
+		progress.ProgressValue = totalSize
+		rsp, _ := json.Marshal(progress)
+		d.rw.Header().Add("Content-Type", "application/json; charset=utf-8")
+		_, _ = d.rw.Write(rsp)
+		time.Sleep(time.Second * 2)
 	}
 	if totalSize != d.fileSize {
 		return errors.New("文件不完整")

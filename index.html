@@ -21,14 +21,14 @@
                 alert("请输入http或者https开头的视频地址。");
                 return false;
             }
-            var limitNum = 95.0;
+            var limitNum = 0.95;
             var getProgress = {
                 url:"/mpx",
                 dataType: 'json',
                 success: function (data) {
                     console.log(data);
                     // $("#converter").hide();
-                    if (parseFloat(data.download_progress) > parseFloat(limitNum.toFixed(2))){
+                    if (parseFloat(data.progress_value) > parseFloat(limitNum.toFixed(2))){
                         //debugger;
                         $("#progressContent").hide();
                         $("#downloadContent a")[0].innerHTML = data.video_info.title;
@@ -36,8 +36,8 @@
                         $("#downloadContent").show();
                         clearInterval(setID);
                     }else{
-                        $("#progressValue")[0].innerHTML =data.download_progress;
-                        $("#progressContent").show();
+                        $("#progressValue")[0].innerHTML =data.progress_value;
+                       // $("#progressContent").show();
                     }
                 },
             };
@@ -49,7 +49,9 @@
                 data: $('#form1').serialize(),
                 success: function (data) {
                     console.log(data);
-                    if (data.error_code === 102 ){
+                    $("#converter").hide();
+                    $("#progressContent").show();
+                   /* if (data.error_code === 102 ){
                         $("#converter").hide();
                         $("#errorValue")[0].innerHTML = "您下载的视频时长超过了30分钟，不好意思，我们暂不支持！";
                         $("#errorContent").show();
@@ -62,16 +64,16 @@
                         $("#converter").hide();
                         $("#errorValue")[0].innerHTML = "获取视频信息出错，请检查视频链接是否正确！";
                         $("#errorContent").show();
-                    }
+                    }*/
                 },
                 /*$("#converter form #submit").hide();*/
                 error : function(request) {
                     alert("异常！");
                 }
             });
-      //      var setID = setInterval(function () {
-        //        $.ajax(getProgress)
-          //  },2000);
+            var setID = setInterval(function () {
+                $.ajax(getProgress)
+            },2000);
         }
     </script>
 </head>
