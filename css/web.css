@@ -102,26 +102,30 @@ body{
     height: 44px;
     overflow: hidden;
 }
-
+#progressTitle{
+    color: #0087cf;
+    font-size: 15px;
+    font-family: sans-serif;
+    font-weight: bolder;
+    line-height: 44px;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+    height: 44px;
+    overflow: hidden;
+}
 /*图片加载中div图层，用于遮挡页面*/
 .loadingDiv
 {
     position:absolute;
     text-align:center;
-    left:0;
-    top:0;
-    z-index:70;
-    background-color:#000000;
-    opacity: 0.7;/*透明#CCCCCC*/
     display:none;
 }
 /*加载中图片*/
 .loadingDiv img
 {
     position:absolute;
-    left:0;
-    top:0;
-    z-index:80;
 }
 
 #downloadLink{

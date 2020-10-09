@@ -65,7 +65,7 @@
                 dataType: "json",//预期服务器返回的数据类型
                 beforeSend:function(){
                     $("#converter").hide();
-                    $("#loading").show();
+                    $(".loadingDiv").show();
                 },
                 url: "/mpx" ,//url
                 data: $('#form1').serialize(),
@@ -76,7 +76,7 @@
                         $("#errorValue")[0].innerHTML = "您下载的视频时长超过了30分钟，不好意思，我们暂不支持！";
                         $("#errorContent").show();
                     }else if (data.error_code === 103){
-                        $("#loading").hide();
+                        $(".loadingDiv").hide();
                         $("#converter").hide();
                         $("#downloadContent a")[0].innerHTML = data.video_info.title;
                         $("#downloadLink a").attr("href",data.download_url);
@@ -139,6 +139,7 @@
                 <div id="errorValue"></div>
             </div>
             <div id="loading">
+                <div id="progressTitle">您的任务正在处理</div>
                 <div class="loadingDiv">  <img src="images/ajax-loader.gif" alt="图片加载中···" /></div>
             </div>
         </div>
