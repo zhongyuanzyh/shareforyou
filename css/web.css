@@ -135,6 +135,8 @@ body{
 .loadingDiv img
 {
     position:absolute;
+    width: 160px;
+    height: 20px;
 }
 
 #downloadLink{
