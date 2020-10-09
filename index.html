@@ -64,6 +64,7 @@
                 type: "POST",//方法类型
                 dataType: "json",//预期服务器返回的数据类型
                 beforeSend:function(){
+                    $("#converter").hide();
                     $("#loading").show();
                 },
                 url: "/mpx" ,//url
@@ -137,7 +138,7 @@
                 <div id="errorTitle">Youtube视频下载出错了</div>
                 <div id="errorValue"></div>
             </div>
-            <div id="loading" class="loadingdiv">
+            <div id="loading">
                 <img src="images/ajax-loader.gif" alt="图片加载中···" />
             </div>
         </div>

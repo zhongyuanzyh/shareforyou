@@ -104,7 +104,7 @@ body{
 }
 
 /*图片加载中div图层，用于遮挡页面*/
-.loadingdiv
+.loading
 {
     position:absolute;
     text-align:center;
@@ -116,7 +116,7 @@ body{
     display:none;
 }
 /*加载中图片*/
-.loadingdiv img
+.loading img
 {
     position:absolute;
     left:0;
