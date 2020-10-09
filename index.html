@@ -5,60 +5,60 @@
     <title>DownloadMp3</title>
     <link rel="stylesheet" type="text/css" href="./css/web.css">
     <link rel="icon" href="./images/favicon.ico" type="image/x-icon">
-    <style>
-        .ui-progressbar {
-            position: relative;
-        }
-        .progress-label {
-            position: absolute;
-            left: 50%;
-            top: 4px;
-            font-weight: bold;
-            text-shadow: 1px 1px 0 #fff;
-        }
-    </style>
+{{/*    <style>*/}}
+{{/*        .ui-progressbar {*/}}
+{{/*            position: relative;*/}}
+{{/*        }*/}}
+{{/*        .progress-label {*/}}
+{{/*            position: absolute;*/}}
+{{/*            left: 50%;*/}}
+{{/*            top: 4px;*/}}
+{{/*            font-weight: bold;*/}}
+{{/*            text-shadow: 1px 1px 0 #fff;*/}}
+{{/*        }*/}}
+{{/*    </style>*/}}
     <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+{{/*    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">*/}}
+{{/*    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>*/}}
+{{/*    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>*/}}
     <script type="text/javascript">
-        var progressbar = $( "#progressbar" ),
-            progressLabel = $( ".progress-label" );
-        $(function(){
-            if(typeof(inteval) != 'undefined') {
-                doClearInterval;
-            } else {
-                inteval = null;
-            }
-        });
-
-        // 进度条长度
-        var width = 0;
-        function beginProgress(t) {
-            width = 1;
-            interval = setInterval("doProgress()", t * 10);
-        }
-        // 设置进度
-        function setProgress(node, width) {
-            if (node) {
-                progressbar.progressbar({
-                    value: width,
-                });
-                progressLabel.text(width + '%');
-            }
-        }
-        // 循环进度
-        function doProgress() {
-            if(width === 98) {
-                doClearInterval();
-            }
-            setProgress(progressbar, width);
-            width++;
-        }
-        // 清除进度
-        function doClearInterval() {
-            clearInterval(interval);
-        }
+        // var progressbar = $( "#progressbar" ),
+        //     progressLabel = $( ".progress-label" );
+        // $(function(){
+        //     if(typeof(inteval) != 'undefined') {
+        //         doClearInterval;
+        //     } else {
+        //         inteval = null;
+        //     }
+        // });
+        //
+        // // 进度条长度
+        // var width = 0;
+        // function beginProgress(t) {
+        //     width = 1;
+        //     interval = setInterval("doProgress()", t * 10);
+        // }
+        // // 设置进度
+        // function setProgress(node, width) {
+        //     if (node) {
+        //         progressbar.progressbar({
+        //             value: width,
+        //         });
+        //         progressLabel.text(width + '%');
+        //     }
+        // }
+        // // 循环进度
+        // function doProgress() {
+        //     if(width === 98) {
+        //         doClearInterval();
+        //     }
+        //     setProgress(progressbar, width);
+        //     width++;
+        // }
+        // // 清除进度
+        // function doClearInterval() {
+        //     clearInterval(interval);
+        // }
 
         function convert() {
             // setTimeout(convert,1000);
@@ -74,51 +74,28 @@
                 alert("请输入http或者https开头的视频地址。");
                 return false;
             }
-            // var limitNum = 0.95;
-            // var getProgress = {
-            //     url:"/mpx",
-            //     dataType: 'json',
-            //     success: function (data) {
-            //         console.log(data);
-            //         // $("#converter").hide();
-            //         if (parseFloat(data.progress_value) > parseFloat(limitNum.toFixed(2))){
-            //             //debugger;
-            //             $("#progressContent").hide();
-            //             $("#downloadContent a")[0].innerHTML = data.video_info.title;
-            //             $("#downloadLink a").attr("href",data.download_url);
-            //             $("#downloadContent").show();
-            //             clearInterval(setID);
-            //         }else{
-            //             $("#progressValue")[0].innerHTML =data.progress_value;
-            //            // $("#progressContent").show();
-            //         }
-            //     },
-            // };
             $.ajax({
                 //几个参数需要注意一下
                 type: "POST",//方法类型
                 dataType: "json",//预期服务器返回的数据类型
                 beforeSend:function(){
-                  beginProgress(10);
+                    $("#loading").show();
                 },
                 url: "/mpx" ,//url
                 data: $('#form1').serialize(),
                 success: function (data) {
                     console.log(data);
                     if (data.error_code === 102 ){
-                        doClearInterval();
                         $("#converter").hide();
                         $("#errorValue")[0].innerHTML = "您下载的视频时长超过了30分钟，不好意思，我们暂不支持！";
                         $("#errorContent").show();
                     }else if (data.error_code === 103){
-                        doClearInterval();
-                        setProgress(progressbar, 100);
+                        $("#loading").hide();
                         $("#converter").hide();
                         $("#downloadContent a")[0].innerHTML = data.video_info.title;
                         $("#downloadLink a").attr("href",data.download_url);
                         $("#downloadContent").show();
                     }else if (data.error_code === 101){
-                        doClearInterval();
                         $("#converter").hide();
                         $("#errorValue")[0].innerHTML = "获取视频信息出错，请检查视频链接是否正确！";
                         $("#errorContent").show();
@@ -129,42 +106,6 @@
                     alert("异常！");
                 },
             });
-            // $.ajax2();
-            // $(document).bind("ajaxStart.loadingdiv",function(){
-            //     $('.loadingdiv').show();
-            // });
-            // $(document).bind("ajaxStop.loadingdiv",function () {
-            //     $('.loadingdiv').hide();
-            // });
-               /* $("button").click(function(){
-                    $("div").load("demo_ajax_load.php");
-                });*/
-           /* $(function () {
-                $("#loading").ajaxStart(function () {
-                    //一个div，用来遮挡页面，请求过程中，不可操作页面
-                    var lockwin = $(this);
-                    //div占满整个页面
-                    lockwin.css("width", "100%");
-                    lockwin.css("display", "block");
-                    lockwin.css("height", $(window).height() + $(window).scrollTop());
-                    //设置图片居中
-                    $("#loading img").css("display", "block");
-                    $("#loading img").css("left", ($(window).width() - 88) / 2);
-                    $("#loading img").css("top", ($(window).height() + $(window).scrollTop()) / 2);
-                });
-                $("#loading").ajaxStop(function () {
-                    //隐藏div
-                    var lockwin = $(this);
-                    lockwin.css("width", "0");
-                    lockwin.css("display", "none");
-                    lockwin.css("height", "0");
-                    //设置图片隐藏
-                    $("#loading img").css("display", "none");
-                });
-            });*/
-            /*var setID = setInterval(function () {
-                $.ajax(getProgress)
-            },2000);*/
         }
 
     </script>
@@ -214,9 +155,9 @@
             <div id="loading" class="loadingdiv">
                 <img src="images/ajax-loader.gif" alt="图片加载中···" />
             </div>
-            <div id="progressbar">
-                <div class="progress-label">Loading...</div>
-            </div>
+{{/*            <div id="progressbar">*/}}
+{{/*                <div class="progress-label">Loading...</div>*/}}
+{{/*            </div>*/}}
         </div>
     <div id="separator"></div>
     <div id="text">
