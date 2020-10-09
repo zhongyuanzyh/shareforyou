@@ -133,7 +133,7 @@ body{
     display:none;
     width: 552px;
     height: 24px;
-    background: url("/images/ajax-bar-loader-2.gif") repeat;
+    background: url("/images/ajax-loader.gif") repeat;
 }
 
 #downloadLink{
