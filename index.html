@@ -65,6 +65,7 @@
                 dataType: "json",//预期服务器返回的数据类型
                 beforeSend:function(){
                     $("#converter").hide();
+                    $("#loading").show();
                     $(".loadingDiv").show();
                 },
                 url: "/mpx" ,//url
@@ -76,6 +77,7 @@
                         $("#errorValue")[0].innerHTML = "您下载的视频时长超过了30分钟，不好意思，我们暂不支持！";
                         $("#errorContent").show();
                     }else if (data.error_code === 103){
+                        $("#loading").hide();
                         $(".loadingDiv").hide();
                         $("#converter").hide();
                         $("#downloadContent a")[0].innerHTML = data.video_info.title;
