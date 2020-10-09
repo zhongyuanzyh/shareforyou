@@ -2,49 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>DownloadMp3</title>
+    <title>ShareForYou YouTube Downloader</title>
     <link rel="stylesheet" type="text/css" href="./css/web.css">
     <link rel="icon" href="./images/favicon.ico" type="image/x-icon">
     <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
     <script type="text/javascript">
-        // var progressbar = $( "#progressbar" ),
-        //     progressLabel = $( ".progress-label" );
-        // $(function(){
-        //     if(typeof(inteval) != 'undefined') {
-        //         doClearInterval;
-        //     } else {
-        //         inteval = null;
-        //     }
-        // });
-        //
-        // // 进度条长度
-        // var width = 0;
-        // function beginProgress(t) {
-        //     width = 1;
-        //     interval = setInterval("doProgress()", t * 10);
-        // }
-        // // 设置进度
-        // function setProgress(node, width) {
-        //     if (node) {
-        //         progressbar.progressbar({
-        //             value: width,
-        //         });
-        //         progressLabel.text(width + '%');
-        //     }
-        // }
-        // // 循环进度
-        // function doProgress() {
-        //     if(width === 98) {
-        //         doClearInterval();
-        //     }
-        //     setProgress(progressbar, width);
-        //     width++;
-        // }
-        // // 清除进度
-        // function doClearInterval() {
-        //     clearInterval(interval);
-        // }
-
         function convert() {
             // setTimeout(convert,1000);
             if ($("input[type=text]").val() ==="") {
@@ -93,13 +55,11 @@
                         $("#errorContent").show();
                     }
                 },
-                /*$("#converter form #submit").hide();*/
                 error : function(request) {
                     alert("异常！");
                 },
             });
         }
-
     </script>
 </head>
 <body>
@@ -117,7 +77,7 @@
             <div id="converter">
                 <div id="title">请输入YouTube视频链接地址</div>
             <form id="form1" onsubmit="return false" action="##" method="post">
-                <input id="input" type="text" name="video" autocomplete="off" value="" autofocus>
+                <label for="input"></label><input id="input" type="text" name="video" autocomplete="off" value="" autofocus>
                 <input id="submit" type="button" value="开始转换" onclick="convert()">
                 <div id="checkbox">
                     请选择转换结果的格式：
@@ -146,7 +106,7 @@
             </div>
             <div id="loading">
                 <div id="progressTitle">您的任务正在处理</div>
-                <div class="loadingDiv">  <img src="images/ajax-bar-loader.gif" alt="图片加载中···" /></div>
+                <div class="loadingDiv">  <img src="images/ajax-bar-loader-2.gif" alt="图片加载中···" /></div>
             </div>
         </div>
     <div id="separator"></div>
