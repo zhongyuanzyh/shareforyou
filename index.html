@@ -69,10 +69,10 @@
                     alert("异常！");
                 },
             });
-            $(document).ajaxStart(function(){
+            $(document).bind("ajaxStart.loadingdiv",function(){
                 $('.loadingdiv').show();
             });
-            $(document).ajaxStop(function () {
+            $(document).bind("ajaxStop.loadingdiv",function () {
                 $('.loadingdiv').hide();
             });
                /* $("button").click(function(){
