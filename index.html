@@ -68,12 +68,12 @@
                 error : function(request) {
                     alert("异常！");
                 },
-                complete:function () {
-
-                }
             });
-            $.ajaxStart(function(){
-                $("#loading").show();
+            $(document).ajaxStart(function(){
+                $('.loadingdiv').show();
+            });
+            $(document).ajaxStop(function () {
+                $('.loadingdiv').hide();
             });
                /* $("button").click(function(){
                     $("div").load("demo_ajax_load.php");
