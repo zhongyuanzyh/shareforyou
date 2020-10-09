@@ -102,6 +102,15 @@ body{
     height: 44px;
     overflow: hidden;
 }
+#loading{
+    display: none;
+    width: 93%;
+    height: 90px;
+    background-color: #f4f4f4;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    padding: 0 3.3% 20px 3.3%;
+}
 #progressTitle{
     color: #0087cf;
     font-size: 15px;
