@@ -111,6 +111,7 @@ body{
     border-top-right-radius: 3px;
     padding: 0 3.3% 20px 3.3%;
 }
+
 #progressTitle{
     color: #0087cf;
     font-size: 15px;
@@ -124,24 +125,15 @@ body{
     height: 44px;
     overflow: hidden;
 }
-/*图片加载中div图层，用于遮挡页面*/
+
 .loadingDiv
 {
     position:absolute;
     text-align:center;
     display:none;
-    background: url("/images/ajax-bar-loader-2.gif") repeat center center;
-}
-/*加载中图片*/
-.loadingDiv img
-{
-    position:absolute;
-    width: 256px;
-    height: 38px;
-    border-style: solid;
-    border-color: #0087cf;
-    border-width: thin;
-    border-radius: 3px;
+    width: 552px;
+    height: 24px;
+    background: url("/images/ajax-bar-loader-2.gif") repeat;
 }
 
 #downloadLink{
