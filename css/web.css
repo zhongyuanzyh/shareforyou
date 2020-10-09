@@ -130,15 +130,18 @@ body{
     position:absolute;
     text-align:center;
     display:none;
+    background: url("/images/ajax-bar-loader-2.gif") repeat center center;
 }
 /*加载中图片*/
 .loadingDiv img
 {
     position:absolute;
-    width: 555px;
-    height: 80px;
-    border-style: groove;
+    width: 256px;
+    height: 38px;
+    border-style: solid;
     border-color: #0087cf;
+    border-width: thin;
+    border-radius: 3px;
 }
 
 #downloadLink{
@@ -147,6 +150,7 @@ body{
     width: 99%;
     border: 1px #0087cf solid;
     border-radius: 3px;
+    padding-top: 15px;
 }
 
 #title{
