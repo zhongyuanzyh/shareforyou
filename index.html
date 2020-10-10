@@ -13,12 +13,13 @@
                 alert("请输入视频连接地址。");
                 return false;
             }
-            var reg = /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?/;
+            //var reg1 = /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?/;
+            var reg = /https:\/\/(www+\.)+(youtube+\.)+(\/[\w- .\/?%&=]*)?/;
             var objExp=new RegExp(reg);
             var res = objExp.test($("#input").val());
             if (res === false){
                 console.log(res);
-                alert("请输入http或者https开头的视频地址。");
+                alert("请输入https开头的youtube网站视频地址。");
                 return false;
             }
             $.ajax({
