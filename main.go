@@ -201,7 +201,7 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	isYT := strings.Contains(youtubeURL, "https://www.youtube.com/")
 	if !isYT {
 		mi.ErrCode = NotYouTubeVideo
-		rsp, _ := json.Marshal(mi)
+		rsp, _ := json.MarshalIndent(mi, "", "    ")
 		w.Header().Add("Content-Type", "application/json; charset=utf-8")
 		_, _ = w.Write(rsp)
 		return
