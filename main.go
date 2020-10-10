@@ -8,10 +8,12 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+	"unsafe"
 
 	//"encoding/hex"
 	"errors"
@@ -32,7 +34,13 @@ const (
 	NotYouTubeVideo    = 104
 )
 
-var workerPool = NewDispatcher()
+var (
+	logFlag                 = os.O_APPEND | os.O_RDWR | os.O_CREATE
+	logPerm     os.FileMode = 0664
+	dirPerm     os.FileMode = 0777
+	workerPool              = NewDispatcher()
+	mediaLogger             = NewLogger("/data/youtube-dl/log/", "media")
+)
 
 type VideoInfo struct {
 	UploadDate       string       `json:"upload_date"`
@@ -139,6 +147,108 @@ type filePart struct {
 	Data  []byte //http下载得到的文件内容
 }
 
+type _log struct {
+	typ  int
+	dir  string
+	name string
+	curr string
+	file *os.File
+	log  *log.Logger
+	ch   chan interface{}
+}
+
+func NewLogger(dir, name string) *_log {
+	l := &_log{
+		typ:  0,
+		dir:  dir,
+		name: name,
+		ch:   make(chan interface{}, 3000000 /*cur*N*/),
+	}
+	go l.start()
+	return l
+}
+
+func (l *_log) start() {
+	go func() {
+		for {
+			select {
+			case v := <-l.ch:
+				l.write(v)
+			}
+		}
+	}()
+}
+
+func (l *_log) write(v interface{}) {
+	var (
+		c   []byte
+		str string
+	)
+
+	switch v.(type) {
+	case string:
+		c = StringToBytes(v.(string))
+	case []byte:
+		c = v.([]byte)
+	default:
+		c, _ = json.Marshal(v)
+	}
+	str = BytesToString(c)
+
+	ts := time.Now()
+	date := ts.Format("20060102")     //年月日
+	hour := ts.Format("200601021504") //年月日时分
+	_ = os.MkdirAll(l.dir+date+"/", dirPerm)
+	if l.curr == "" {
+		l.curr = l.dir + date + "/" + l.name + ".log." + hour
+		l.file, _ = os.OpenFile(l.curr, logFlag, logPerm)
+		l.log = log.New(l.file, "", 0)
+	} else {
+		tmp := l.dir + date + "/" + l.name + ".log." + hour
+		if tmp != l.curr {
+			l.curr = tmp
+			_ = l.file.Close()
+			l.file, _ = os.OpenFile(l.curr, logFlag, logPerm)
+			l.log = log.New(l.file, "", 0)
+		}
+	}
+	//这个是打印到l结构体所代表的文件输出
+	l.log.Println(str)
+}
+
+func (l *_log) Push(v interface{}) {
+	l.ch <- v
+}
+
+func (l *_log) Close() {
+	if l.file != nil {
+		defer func() { _ = l.file.Close() }()
+	}
+}
+
+func StringToBytes(v string) (r []byte) {
+	if v == "" {
+		return nil
+	}
+	pb := (*reflect.SliceHeader)(unsafe.Pointer(&r))
+	ps := (*reflect.SliceHeader)(unsafe.Pointer(&v))
+	pb.Data = ps.Data
+	pb.Len = ps.Len
+	pb.Cap = ps.Len
+	return
+}
+
+func BytesToString(v []byte) (r string) {
+	if v == nil {
+		return ""
+	}
+	pb := (*reflect.SliceHeader)(unsafe.Pointer(&v))
+	ps := (*reflect.StringHeader)(unsafe.Pointer(&r))
+	ps.Data = pb.Data
+	ps.Len = pb.Len
+	return
+}
+
 type Job struct {
 	v  *VideoInfo
 	m  *MediaInfo
@@ -177,6 +287,7 @@ func (j *Job) Do() {
 		rsp, _ = json.Marshal(j.m)
 	}
 	j.Ch <- rsp
+	mediaLogger.Push(rsp)
 }
 
 func init() {
