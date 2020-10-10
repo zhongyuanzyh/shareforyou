@@ -54,6 +54,12 @@
                         $("#converter").hide();
                         $("#errorValue")[0].innerHTML = "获取视频信息出错，请检查视频链接是否正确！";
                         $("#errorContent").show();
+                    }else if (data.error_code === 104){
+                        $("#loading").hide();
+                        $(".loadingDiv").hide();
+                        $("#converter").hide();
+                        $("#errorValue")[0].innerHTML = "我们目前只能处理Youtube网站的视频！";
+                        $("#errorContent").show();
                     }
                 },
                 error : function(request) {

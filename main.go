@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -28,6 +29,7 @@ const (
 	CanNotGetMediaInfo = 101
 	VideoDurationOver  = 102
 	ConvertSuccess     = 103
+	NotYouTubeVideo    = 104
 )
 
 var workerPool = NewDispatcher()
@@ -196,6 +198,14 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	mi.ErrCode = ConvertSuccess
 	_ = r.ParseForm()
 	youtubeURL := r.Form.Get("video")
+	isYT := strings.Contains(youtubeURL, "https://www.youtube.com/")
+	if !isYT {
+		mi.ErrCode = NotYouTubeVideo
+		rsp, _ := json.Marshal(mi)
+		w.Header().Add("Content-Type", "application/json; charset=utf-8")
+		_, _ = w.Write(rsp)
+		return
+	}
 	mediaFormat := r.Form.Get("format")
 	cmdDetail := exec.Command("youtube-dl", "--youtube-skip-dash-manifest", "--skip-download", "--print-json", youtubeURL)
 	out, err := cmdDetail.CombinedOutput()
