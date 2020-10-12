@@ -10,7 +10,7 @@
         function convert() {
             // setTimeout(convert,1000);
             if ($("input[type=text]").val() ==="") {
-                alert("请输入视频连接地址。");
+                alert("Please enter the video connection address.");
                 return false;
             }
             //var reg1 = /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?/;
@@ -19,7 +19,7 @@
             var res = objExp.test($("#input").val());
             if (res === false){
                 console.log(res);
-                alert("请输入https开头的youtube网站视频地址。");
+                alert("Please enter the youtube video address starting with https.");
                 return false;
             }
             $.ajax({
@@ -38,7 +38,7 @@
                         $("#loading").hide();
                         $(".loadingDiv").hide();
                         $("#converter").hide();
-                        $("#errorValue")[0].innerHTML = "您下载的视频时长超过了30分钟，不好意思，我们暂不支持！";
+                        $("#errorValue")[0].innerHTML = "The video you downloaded exceeds 30 minutes, sorry, we don’t support it temporarily!";
                         $("#errorContent").show();
                     }else if (data.error_code === 103){
                         $("#loading").hide();
@@ -51,18 +51,18 @@
                         $("#loading").hide();
                         $(".loadingDiv").hide();
                         $("#converter").hide();
-                        $("#errorValue")[0].innerHTML = "获取视频信息出错，请检查视频链接是否正确！";
+                        $("#errorValue")[0].innerHTML = "Error getting video information, please check whether the video link is correct!";
                         $("#errorContent").show();
                     }else if (data.error_code === 104){
                         $("#loading").hide();
                         $(".loadingDiv").hide();
                         $("#converter").hide();
-                        $("#errorValue")[0].innerHTML = "我们目前只能处理Youtube网站的视频，请检查您的网址链接！";
+                        $("#errorValue")[0].innerHTML = "We can currently only process videos from the Youtube website, please check your URL link!";
                         $("#errorContent").show();
                     }
                 },
                 error : function(request) {
-                    alert("异常！");
+                    alert("abnormal!");
                 },
             });
         }
@@ -72,33 +72,33 @@
             var text = nSel.options[index].text;
             var value= nSel.options[index].value;
             if (value === "opt1"){
-                window.location.href = "/index.html";
+                window.location.href = "index-en.html";
             }else if (value === "opt2"){
-                window.location.href = "/index-jp.html";
+                window.location.href = "index-jp.html";
             }else if (value === "opt3"){
-                window.location.href = "/index-en.html";
+                window.location.href = "index.html";
             } else if (value === "opt4"){
-                window.location.href = "/index-th.html";
+                window.location.href = "index-th.html";
             }else if (value === "opt5"){
-                window.location.href = "/index-vn.html";
+                window.location.href = "index-vn.html";
             }else if(value === "opt6"){
-                window.location.href = "/index-mm.html";
+                window.location.href = "index-mm.html";
             }
         }
     </script>
 </head>
 <body>
     <div id="nav">
-        <a href="http://jd.com" target="_blank">京东</a>
-        <a href="http://sina.com" target="_blank">新浪</a>
-        <a href="http://163.com" target="_blank">网易</a>
-        <a href="http://qq.com" target="_blank">腾讯</a>
+        <a href="https://www.youtube.com" target="_blank">Youtube</a>
+        <a href="https://www.facebook.com" target="_blank">Facebook</a>
+        <a href="https://www.twitter.com" target="_blank">Twitter</a>
+        <a href="https://www.google.com" target="_blank">Google</a>
     </div>
     <div>
         <label for="languageBox"></label><select id="languageBox" onChange="langChange();">
-            <option value="opt1">中文</option>
+            <option value="opt1">English</option>
             <option value="opt2">日本語</option>
-            <option value="opt3">English</option>
+            <option value="opt3">中文</option>
             <option value="opt4">ไทย</option>
             <option value="opt5">Tiếng Việt</option>
             <option value="opt6">ဗမာ</option>
@@ -110,52 +110,52 @@
         </a>
         <div id="converter_wrapper">
             <div id="converter">
-                <div id="title">请输入YouTube视频链接地址</div>
+                <div id="title">Please enter the YouTube video link address</div>
             <form id="form1" onsubmit="return false" action="##" method="post">
                 <label for="input"></label><input id="input" type="text" name="video" autocomplete="off" value="" autofocus>
-                <input id="submit" type="button" value="开始转换" onclick="convert()">
+                <input id="submit" type="button" value="Start conversion" onclick="convert()">
                 <div id="checkbox">
-                    请选择转换结果的格式：
+                    Please select the format of the conversion result:
                     <label>
                         <input class="media" type="radio" name="format" value="mp3" checked>
-                    </label>音频
+                    </label>audio
                     <label>
                         <input class="media" type="radio" name="format" value="mp4">
-                    </label>视频
+                    </label>video
                 </div>
             </form>
             </div>
             <div id="downloadContent">
-              <div id="downloadTitle">YouTube视频转换后的下载地址</div>
+              <div id="downloadTitle">Download URL of YouTube video after conversion</div>
               <div id="downloadLink">
                 <a href="" download></a> 
               </div>
             </div>
             <div id="progressContent">
-                <div id="progressTitle">任务下载进度</div>
+                <div id="progressTitle">Task download progress</div>
                 <div id="progressValue"></div>
             </div>
             <div id="errorContent">
-                <div id="errorTitle">Youtube视频下载出错了</div>
+                <div id="errorTitle">Youtube video download error</div>
                 <div id="errorValue"></div>
             </div>
             <div id="loading">
-                <div id="progressTitle">您的任务正在处理</div>
+                <div id="progressTitle">Your task is being processed</div>
                 <div class="loadingDiv"></div>
             </div>
         </div>
     <div id="separator"></div>
     <div id="text">
         <h1>ShareForYou</h1>
-        <p>通过使用我们的转换器，您可以轻松地将YouTube视频转换为mp3（音频）或mp4（视频）文件并免费下载-此服务适用于计算机，平板电脑和移动设备。</p>
-        <p>视频始终以最高的可用质量进行转换。请注意，我们最多只能转换30分钟的视频-这是有限制的，因此任何视频的转换不会超过几分钟。</p>
-        <p>请举手之劳，帮忙点击广告，我们以此作为运营收入。我们的服务是免费的，不需要安装任何软件或注册。</p>
-        <p>要转换视频，请将YouTube视频URL复制到我们的转换器中，选择一种格式，然后单击转换按钮。转换完成后，您可以通过单击下载链接来下载文件。</p>
-        <p>请享用！希望您喜欢我们的服务。</p>
+        <p>By using our converter, you can easily convert YouTube videos to mp3 (audio) or mp4 (video) files and download them for free-this service is suitable for computers, tablets and mobile devices.</p>
+        <p>Videos are always converted at the highest available quality. Please note that we can only convert up to 30 minutes of videos-this is limited, so any video conversion will not take more than a few minutes.</p>
+        <p>Please do your best to help click on the ad and we will use this as operating income. Our service is free and does not require any software installation or registration.</p>
+        <p>To convert the video, please copy the YouTube video URL into our converter, select a format, and click the convert button. After the conversion is complete, you can download the file by clicking the download link.</p>
+        <p>Please enjoy! Hope you like our service.</p>
     </div>
     </div>
     <div id="footer">
-        <a href="author.html" target="_blank">联系作者</a>
+        <a href="author.html" target="_blank">Contact Author</a>
     </div>
 </body>
 </html>

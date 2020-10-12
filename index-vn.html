@@ -10,7 +10,7 @@
         function convert() {
             // setTimeout(convert,1000);
             if ($("input[type=text]").val() ==="") {
-                alert("请输入视频连接地址。");
+                alert("Vui lòng nhập địa chỉ kết nối video.");
                 return false;
             }
             //var reg1 = /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?/;
@@ -19,7 +19,7 @@
             var res = objExp.test($("#input").val());
             if (res === false){
                 console.log(res);
-                alert("请输入https开头的youtube网站视频地址。");
+                alert("Vui lòng nhập địa chỉ video youtube bắt đầu bằng https.");
                 return false;
             }
             $.ajax({
@@ -38,7 +38,7 @@
                         $("#loading").hide();
                         $(".loadingDiv").hide();
                         $("#converter").hide();
-                        $("#errorValue")[0].innerHTML = "您下载的视频时长超过了30分钟，不好意思，我们暂不支持！";
+                        $("#errorValue")[0].innerHTML = "Rất tiếc, video bạn đã tải xuống vượt quá 30 phút, chúng tôi tạm thời không hỗ trợ video đó!";
                         $("#errorContent").show();
                     }else if (data.error_code === 103){
                         $("#loading").hide();
@@ -51,18 +51,18 @@
                         $("#loading").hide();
                         $(".loadingDiv").hide();
                         $("#converter").hide();
-                        $("#errorValue")[0].innerHTML = "获取视频信息出错，请检查视频链接是否正确！";
+                        $("#errorValue")[0].innerHTML = "Lỗi khi lấy thông tin video, vui lòng kiểm tra xem liên kết video có chính xác không!";
                         $("#errorContent").show();
                     }else if (data.error_code === 104){
                         $("#loading").hide();
                         $(".loadingDiv").hide();
                         $("#converter").hide();
-                        $("#errorValue")[0].innerHTML = "我们目前只能处理Youtube网站的视频，请检查您的网址链接！";
+                        $("#errorValue")[0].innerHTML = "Chúng tôi hiện chỉ có thể xử lý video từ trang web Youtube, vui lòng kiểm tra liên kết URL của bạn!";
                         $("#errorContent").show();
                     }
                 },
                 error : function(request) {
-                    alert("异常！");
+                    alert("bất thường!");
                 },
             });
         }
@@ -72,35 +72,35 @@
             var text = nSel.options[index].text;
             var value= nSel.options[index].value;
             if (value === "opt1"){
-                window.location.href = "/index.html";
+                window.location.href = "index-vn.html";
             }else if (value === "opt2"){
-                window.location.href = "/index-jp.html";
+                window.location.href = "index-jp.html";
             }else if (value === "opt3"){
-                window.location.href = "/index-en.html";
+                window.location.href = "index-en.html";
             } else if (value === "opt4"){
-                window.location.href = "/index-th.html";
+                window.location.href = "index-th.html";
             }else if (value === "opt5"){
-                window.location.href = "/index-vn.html";
+                window.location.href = "index.html";
             }else if(value === "opt6"){
-                window.location.href = "/index-mm.html";
+                window.location.href = "index-mm.html";
             }
         }
     </script>
 </head>
 <body>
     <div id="nav">
-        <a href="http://jd.com" target="_blank">京东</a>
-        <a href="http://sina.com" target="_blank">新浪</a>
-        <a href="http://163.com" target="_blank">网易</a>
-        <a href="http://qq.com" target="_blank">腾讯</a>
+        <a href="https://youtube.com" target="_blank">Youtube</a>
+        <a href="https://google.com" target="_blank">Google</a>
+        <a href="https://facebook.com" target="_blank">Facebook</a>
+        <a href="https://instagram.com" target="_blank">Instagram</a>
     </div>
     <div>
         <label for="languageBox"></label><select id="languageBox" onChange="langChange();">
-            <option value="opt1">中文</option>
+            <option value="opt1">Tiếng Việt</option>
             <option value="opt2">日本語</option>
             <option value="opt3">English</option>
             <option value="opt4">ไทย</option>
-            <option value="opt5">Tiếng Việt</option>
+            <option value="opt5">中文</option>
             <option value="opt6">ဗမာ</option>
         </select>
     </div>
@@ -110,52 +110,52 @@
         </a>
         <div id="converter_wrapper">
             <div id="converter">
-                <div id="title">请输入YouTube视频链接地址</div>
+                <div id="title">Vui lòng nhập địa chỉ liên kết video YouTube</div>
             <form id="form1" onsubmit="return false" action="##" method="post">
                 <label for="input"></label><input id="input" type="text" name="video" autocomplete="off" value="" autofocus>
-                <input id="submit" type="button" value="开始转换" onclick="convert()">
+                <input id="submit" type="button" value="Bắt đầu chuyển đổi" onclick="convert()">
                 <div id="checkbox">
-                    请选择转换结果的格式：
+                    Vui lòng chọn định dạng của kết quả chuyển đổi:
                     <label>
                         <input class="media" type="radio" name="format" value="mp3" checked>
-                    </label>音频
+                    </label>Âm thanh
                     <label>
                         <input class="media" type="radio" name="format" value="mp4">
-                    </label>视频
+                    </label>video
                 </div>
             </form>
             </div>
             <div id="downloadContent">
-              <div id="downloadTitle">YouTube视频转换后的下载地址</div>
+              <div id="downloadTitle">Tải xuống URL của video YouTube sau khi chuyển đổi</div>
               <div id="downloadLink">
                 <a href="" download></a> 
               </div>
             </div>
             <div id="progressContent">
-                <div id="progressTitle">任务下载进度</div>
+                <div id="progressTitle">Tiến trình tải xuống tác vụ</div>
                 <div id="progressValue"></div>
             </div>
             <div id="errorContent">
-                <div id="errorTitle">Youtube视频下载出错了</div>
+                <div id="errorTitle">Lỗi tải xuống video Youtube</div>
                 <div id="errorValue"></div>
             </div>
             <div id="loading">
-                <div id="progressTitle">您的任务正在处理</div>
+                <div id="progressTitle">Nhiệm vụ của bạn đang được xử lý</div>
                 <div class="loadingDiv"></div>
             </div>
         </div>
     <div id="separator"></div>
     <div id="text">
         <h1>ShareForYou</h1>
-        <p>通过使用我们的转换器，您可以轻松地将YouTube视频转换为mp3（音频）或mp4（视频）文件并免费下载-此服务适用于计算机，平板电脑和移动设备。</p>
-        <p>视频始终以最高的可用质量进行转换。请注意，我们最多只能转换30分钟的视频-这是有限制的，因此任何视频的转换不会超过几分钟。</p>
-        <p>请举手之劳，帮忙点击广告，我们以此作为运营收入。我们的服务是免费的，不需要安装任何软件或注册。</p>
-        <p>要转换视频，请将YouTube视频URL复制到我们的转换器中，选择一种格式，然后单击转换按钮。转换完成后，您可以通过单击下载链接来下载文件。</p>
-        <p>请享用！希望您喜欢我们的服务。</p>
+        <p>Bằng cách sử dụng trình chuyển đổi của chúng tôi, bạn có thể dễ dàng chuyển đổi video YouTube sang tệp mp3 (âm thanh) hoặc mp4 (video) và tải xuống miễn phí - dịch vụ này phù hợp với máy tính, máy tính bảng và thiết bị di động.</p>
+        <p>Video luôn được chuyển đổi ở chất lượng cao nhất hiện có. Xin lưu ý rằng chúng tôi chỉ có thể chuyển đổi tối đa 30 phút video - điều này có giới hạn, vì vậy bất kỳ chuyển đổi video nào sẽ không mất quá vài phút.</p>
+        <p>Vui lòng cố gắng hết sức để giúp nhấp vào quảng cáo và chúng tôi sẽ sử dụng số tiền này làm thu nhập hoạt động. Dịch vụ của chúng tôi miễn phí và không yêu cầu bất kỳ cài đặt hoặc đăng ký phần mềm nào.</p>
+        <p>Để chuyển đổi video, vui lòng sao chép URL video YouTube vào trình chuyển đổi của chúng tôi, chọn một định dạng và nhấp vào nút chuyển đổi. Sau khi chuyển đổi xong, bạn có thể tải xuống tệp bằng cách nhấp vào liên kết tải xuống.</p>
+        <p>Hãy tận hưởng đi nhé! Hy vọng bạn thích dịch vụ của chúng tôi.</p>
     </div>
     </div>
     <div id="footer">
-        <a href="author.html" target="_blank">联系作者</a>
+        <a href="author.html" target="_blank">Liên hệ với tác giả</a>
     </div>
 </body>
 </html>

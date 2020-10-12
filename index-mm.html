@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ShareForYou YouTube Downloader</title>
+    <link rel="stylesheet" type="text/css" href="./css/web.css">
+    <link rel="icon" href="./images/favicon.ico" type="image/x-icon">
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript">
+        function convert() {
+            // setTimeout(convert,1000);
+            if ($("input[type=text]").val() ==="") {
+                alert("ကျေးဇူးပြု၍ ဗွီဒီယိုဆက်သွယ်မှုလိပ်စာကိုရိုက်ထည့်ပါ။");
+                return false;
+            }
+            //var reg1 = /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?/;
+            var reg = /https:\/\/(www+\.)+(youtube+\.)+(\/[\w- .\/?%&=]*)?/;
+            var objExp=new RegExp(reg);
+            var res = objExp.test($("#input").val());
+            if (res === false){
+                console.log(res);
+                alert("ကျေးဇူးပြု၍ youtube ဗီဒီယိုလိပ်စာကို https မှစတင်ပါ။");
+                return false;
+            }
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                beforeSend:function(){
+                    $("#converter").hide();
+                    $("#loading").show();
+                    $(".loadingDiv").show();
+                },
+                url: "/mpx" ,//url
+                data: $('#form1').serialize(),
+                success: function (data) {
+                    console.log(data);
+                    if (data.error_code === 102 ){
+                        $("#loading").hide();
+                        $(".loadingDiv").hide();
+                        $("#converter").hide();
+                        $("#errorValue")[0].innerHTML = "သင်ဒေါင်းလုတ်လုပ်ထားသောဗွီဒီယိုသည်မိနစ် ၃၀ ကျော်သည်။ ဝမ်းနည်းပါသည်၊ ၎င်းကိုခဏမျှမထောက်ပံ့ပါ။";
+                        $("#errorContent").show();
+                    }else if (data.error_code === 103){
+                        $("#loading").hide();
+                        $(".loadingDiv").hide();
+                        $("#converter").hide();
+                        $("#downloadContent a")[0].innerHTML = data.video_info.title;
+                        $("#downloadLink a").attr("href",data.download_url);
+                        $("#downloadContent").show();
+                    }else if (data.error_code === 101){
+                        $("#loading").hide();
+                        $(".loadingDiv").hide();
+                        $("#converter").hide();
+                        $("#errorValue")[0].innerHTML = "ဗွီဒီယိုသတင်းအချက်အလက်ရရှိရန်ချို့ယွင်းချက်ရှိပါက ကျေးဇူးပြု၍ ဗွီဒီယိုလင့်ခ်မှန်မမှန်စစ်ဆေးပါ။";
+                        $("#errorContent").show();
+                    }else if (data.error_code === 104){
+                        $("#loading").hide();
+                        $(".loadingDiv").hide();
+                        $("#converter").hide();
+                        $("#errorValue")[0].innerHTML = "Youtube တွင် ၀ က်ဘ်ဆိုဒ်မှဗီဒီယိုများသာလုပ်နိုင်သည်။ ကျေးဇူးပြု၍ သင်၏ URL လိပ်စာကိုစစ်ဆေးပါ။";
+                        $("#errorContent").show();
+                    }
+                },
+                error : function(request) {
+                    alert("ပုံမှန်မဟုတ်သော!");
+                },
+            });
+        }
+        function langChange(){
+            var nSel = document.getElementById("languageBox");
+            var index = nSel.selectedIndex;
+            var text = nSel.options[index].text;
+            var value= nSel.options[index].value;
+            if (value === "opt1"){
+                window.location.href = "index-mm.html";
+            }else if (value === "opt2"){
+                window.location.href = "index-jp.html";
+            }else if (value === "opt3"){
+                window.location.href = "index-en.html";
+            } else if (value === "opt4"){
+                window.location.href = "index-th.html";
+            }else if (value === "opt5"){
+                window.location.href = "index-vn.html";
+            }else if(value === "opt6"){
+                window.location.href = "index.html";
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="nav">
+        <a href="https://youtube.com" target="_blank">Youtube</a>
+        <a href="https://google.com" target="_blank">Google</a>
+        <a href="https://facebook.com" target="_blank">Facebook</a>
+        <a href="https://instagram.com" target="_blank">Instagram</a>
+    </div>
+    <div>
+        <label for="languageBox"></label><select id="languageBox" onChange="langChange();">
+            <option value="opt1">ဗမာ</option>
+            <option value="opt2">日本語</option>
+            <option value="opt3">English</option>
+            <option value="opt4">ไทย</option>
+            <option value="opt5">Tiếng Việt</option>
+            <option value="opt6">中文</option>
+        </select>
+    </div>
+    <div id="content">
+        <a href="">
+            <img id="logo" src="./images/mp3.png" alt>
+        </a>
+        <div id="converter_wrapper">
+            <div id="converter">
+                <div id="title">ကျေးဇူးပြု၍ YouTube ဗွီဒီယိုလင့်ခ်လိပ်စာကိုရိုက်ထည့်ပါ</div>
+            <form id="form1" onsubmit="return false" action="##" method="post">
+                <label for="input"></label><input id="input" type="text" name="video" autocomplete="off" value="" autofocus>
+                <input id="submit" type="button" value="စတင်ပြောင်းလဲခြင်း" onclick="convert()">
+                <div id="checkbox">
+                    ကျေးဇူးပြု၍ ပြောင်းလဲခြင်းရလဒ်ပုံစံကိုရွေးချယ်ပါ။
+                    <label>
+                        <input class="media" type="radio" name="format" value="mp3" checked>
+                    </label>အသံ
+                    <label>
+                        <input class="media" type="radio" name="format" value="mp4">
+                    </label>ဗီဒီယို
+                </div>
+            </form>
+            </div>
+            <div id="downloadContent">
+              <div id="downloadTitle">ပြောင်းလဲပြီးနောက် YouTube ဗီဒီယို၏ URL ကို download လုပ်ပါ</div>
+              <div id="downloadLink">
+                <a href="" download></a> 
+              </div>
+            </div>
+            <div id="progressContent">
+                <div id="progressTitle">Task ကို download လုပ်တိုးတက်မှု</div>
+                <div id="progressValue"></div>
+            </div>
+            <div id="errorContent">
+                <div id="errorTitle">Youtube ဗီဒီယိုဒေါင်းလုပ်အမှား</div>
+                <div id="errorValue"></div>
+            </div>
+            <div id="loading">
+                <div id="progressTitle">သင့်ရဲ့လုပ်ငန်းတာဝန်ကိုဆောင်ရွက်နေသည်</div>
+                <div class="loadingDiv"></div>
+            </div>
+        </div>
+    <div id="separator"></div>
+    <div id="text">
+        <h1>ShareForYou</h1>
+        <p>ကျွန်ုပ်တို့၏ converter ကိုအသုံးပြုခြင်းဖြင့် YouTube ဗွီဒီယိုများကို mp3 (audio) သို့မဟုတ် mp4 (ဗီဒီယို) ဖိုင်များအလွယ်တကူပြောင်းနိုင်သည်။ ၎င်းကိုအခမဲ့ download ရယူနိုင်သည်။ ဤ ၀ န်ဆောင်မှုသည်ကွန်ပျူတာများ၊ တက်ဘလက်များနှင့်မိုဘိုင်းထုတ်ကုန်များအတွက်သင့်လျော်သည်။</p>
+        <p>ဗွီဒီယိုများကိုအမြင့်ဆုံးရရှိနိုင်သောအရည်အသွေးဖြင့်အမြဲတမ်းပြောင်းလဲသည်။ ကျေးဇူးပြု၍ သတိပြုရန်မှာကျွန်ုပ်တို့သည်မိနစ် ၃၀ အထိဗီဒီယိုများကိုသာပြောင်းနိုင်သည်။ ကန့်သတ်ချက်ရှိသောကြောင့်မည်သည့်ဗီဒီယိုပြောင်းလဲမှုသည်မဆိုမိနစ်အနည်းငယ်မျှကြာလိမ့်မည်မဟုတ်ပါ။</p>
+        <p>ကျေးဇူးပြု၍ ကြော်ငြာကိုကလစ်နှိပ်ပြီးကူညီရန်အတတ်နိုင်ဆုံးကြိုးစားပါ။ ၎င်းကိုလည်ပတ်မှုဝင်ငွေအဖြစ်အသုံးပြုပါမည်။ ကျွန်ုပ်တို့၏ ၀ န်ဆောင်မှုသည်အခမဲ့ဖြစ်ပြီးမည်သည့်ဆော့ဖ်ဝဲလ်ကိုတပ်ဆင်ခြင်းသို့မဟုတ်မှတ်ပုံတင်ခြင်းမလိုအပ်ပါ။</p>
+        <p>ဗွီဒီယိုကိုပြောင်းလဲရန် YouTube ဗွီဒီယို URL ကိုကျွန်ုပ်တို့၏ converter ထဲသို့ကူးယူပါ။ ပုံစံတစ်ခုကိုရွေးချယ်ပြီးပြောင်းလဲသောခလုတ်ကိုနှိပ်ပါ။ ပြောင်းလဲမှုပြီးဆုံးသွားသောအခါ download link ကို နှိပ်၍ ဖိုင်ကို download လုပ်နိုင်သည်။</p>
+        <p>ခံစားပါ ကျွန်တော်တို့ရဲ့ဝန်ဆောင်မှုကိုကြိုက်နှစ်သက်မယ်လို့မျှော်လင့်ပါတယ်</p>
+    </div>
+    </div>
+    <div id="footer">
+        <a href="author.html" target="_blank">စာရေးသူအားဆက်သွယ်ပါ</a>
+    </div>
+</body>
+</html>
