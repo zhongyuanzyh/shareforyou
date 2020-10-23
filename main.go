@@ -296,9 +296,15 @@ func init() {
 
 func main() {
 	http.HandleFunc("/mpx", youtubeMp3)
+	http.HandleFunc("/recommend", dailyRecommend)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/mpx", youtubeMp3)
+	mux.HandleFunc("/recommend", dailyRecommend)
 	_ = http.ListenAndServe(":8888", mux)
+}
+
+func dailyRecommend(w http.ResponseWriter, r *http.Request) {
+
 }
 
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {

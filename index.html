@@ -89,8 +89,20 @@
             }
         }
     </script>
+    <script>
+        function recommend() {
+        $.ajax({
+           type: "GET",
+           url: "/recommend",
+           success: function (data) {
+              console.log(data);
+               $("#recommendItem")[0].innerHTML = data.item;
+           },
+            });
+        }
+    </script>
 </head>
-<body>
+<body onload="recommend()">
     <div id="nav">
         <a href="http://jd.com" target="_blank">京东</a>
         <a href="http://sina.com" target="_blank">新浪</a>
@@ -148,6 +160,18 @@
             </div>
         </div>
     <div id="separator"></div>
+    <div id="dailyRecommend">
+        <h1>每日推荐</h1>
+        <p>推荐曲目: <span id="recommendItem"></span></p>
+        <p>随机试听一首
+            <audio controls="controls" style="display: block" controlsList="noDownload">
+                <source src="/i/song.ogg" type="audio/ogg" />
+                <source src="/i/song.mp3" type="audio/mpeg" />
+            </audio>
+        </p>
+        <P>发现更多 &raquo;</P>
+    </div>
+        <div id="separator"></div>
     <div id="text">
         <h1>ShareForYou</h1>
         <p>通过使用我们的转换器，您可以轻松地将YouTube视频转换为mp3（音频）或mp4（视频）文件并免费下载-此服务适用于计算机，平板电脑和移动设备。</p>
