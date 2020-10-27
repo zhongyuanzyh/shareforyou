@@ -318,9 +318,11 @@ type match struct {
 
 func (r *recommendList) Do() {
 	rCmd := exec.Command("youtube-dl", "-x", "--audio-format", "mp3", r.URL, "-o", "/data/youtube-dl/", r.Title, ".mp3")
-	_, err := rCmd.CombinedOutput()
+	fmt.Printf("the command string is :%s ", rCmd.String())
+	out, err := rCmd.CombinedOutput()
 	if err != nil {
 		log.Printf("download daily recommend song failed%v", err)
+		log.Printf("the command error message %s: ", string(out))
 	}
 }
 
