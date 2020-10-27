@@ -303,8 +303,37 @@ func main() {
 	_ = http.ListenAndServe(":8888", mux)
 }
 
-func dailyRecommend(w http.ResponseWriter, r *http.Request) {
+type recommendList struct {
+	Abstract string  `json:"abstract"`
+	Matches  []match `json:"matches"`
+	Metadata string  `json:"metadata"`
+	Title    string  `json:"title"`
+	URL      string  `json:"url"`
+}
 
+type match struct {
+	Offset int    `json:"offset"`
+	Phrase string `json:"phrase"`
+}
+
+func (r *recommendList) Do() {
+	rCmd := exec.Command("youtube-dl", "-x", "--audio-format", "mp3", r.URL, "-o", "/data/youtube-dl/", r.Title, ".mp3")
+	_, err := rCmd.CombinedOutput()
+	if err != nil {
+		log.Printf("download daily recommend song failed%v", err)
+	}
+}
+
+func dailyRecommend(w http.ResponseWriter, r *http.Request) {
+	var rlJson []recommendList
+	rl, _ := ioutil.ReadFile("/data/youtube-dl/search/output")
+	_ = json.Unmarshal(rl, &rlJson)
+	for i, v := range rlJson {
+		if i > 0 {
+			break
+		}
+		v.Do()
+	}
 }
 
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
