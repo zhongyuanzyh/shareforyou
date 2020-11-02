@@ -297,10 +297,8 @@ func init() {
 
 func main() {
 	http.HandleFunc("/mpx", youtubeMp3)
-	http.HandleFunc("/recommend", dailyRecommend)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/mpx", youtubeMp3)
-	mux.HandleFunc("/recommend", dailyRecommend)
 	_ = http.ListenAndServe(":8888", mux)
 }
 
@@ -321,7 +319,7 @@ func (r *recommendList) Do() {
 	titleTrimmed := strings.Trim(r.Title, " ...")
 	title := fmt.Sprintf("/data/youtube-dl/%s.mp3", titleTrimmed)
 	//这个title不对，因为太长导致后面有...，从而无法使用，另想办法;上面的方法解决
-	rCmd := exec.Command("youtube-dl", "-x", "--audio-format", "mp3", r.URL, "-o", title)
+	rCmd := exec.Command("youtube-dl", "--embed-thumbnail", "-x", "--audio-format", "mp3", r.URL, "-o", title)
 	fmt.Printf("the command string is :%s ", rCmd.String())
 	out, err := rCmd.CombinedOutput()
 	if err != nil {
@@ -330,7 +328,7 @@ func (r *recommendList) Do() {
 	}
 }
 
-func dailyRecommend(w http.ResponseWriter, r *http.Request) {
+func dailyRecommend() {
 	rlJson := make([]recommendList, 20)
 	randomListIndex := fmt.Sprintf("%2v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(10))
 	randomList := strings.Replace(fmt.Sprintf("/data/youtube-dl/search/output%2v", randomListIndex), " ", "", -1)
