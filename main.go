@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/exec"
@@ -317,25 +318,28 @@ type match struct {
 }
 
 func (r *recommendList) Do() {
-	rCmd := exec.Command("youtube-dl", "-x", "--audio-format", "mp3", r.URL, "-o", "/data/youtube-dl/", r.Title, ".mp3")
+	titleTrimmed := strings.Trim(r.Title, " ...")
+	title := fmt.Sprintf("/data/youtube-dl/%s.mp3", titleTrimmed)
+	//这个title不对，因为太长导致后面有...，从而无法使用，另想办法;上面的方法解决
+	rCmd := exec.Command("youtube-dl", "-x", "--audio-format", "mp3", r.URL, "-o", title)
 	fmt.Printf("the command string is :%s ", rCmd.String())
 	out, err := rCmd.CombinedOutput()
 	if err != nil {
-		log.Printf("download daily recommend song failed%v", err)
-		log.Printf("the command error message %s: ", string(out))
+		log.Printf("download daily recommend song failed:%v\n", err)
+		log.Printf("the command error message: %s\n ", string(out))
 	}
 }
 
 func dailyRecommend(w http.ResponseWriter, r *http.Request) {
-	var rlJson []recommendList
-	rl, _ := ioutil.ReadFile("/data/youtube-dl/search/output")
+	rlJson := make([]recommendList, 20)
+	randomListIndex := fmt.Sprintf("%2v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(10))
+	randomList := strings.Replace(fmt.Sprintf("/data/youtube-dl/search/output%2v", randomListIndex), " ", "", -1)
+	rl, _ := ioutil.ReadFile(randomList)
 	_ = json.Unmarshal(rl, &rlJson)
-	for i, v := range rlJson {
-		if i > 0 {
-			break
-		}
-		v.Do()
-	}
+	randomSongIndex := fmt.Sprintf("%2v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(20))
+	randomSong, _ := strconv.Atoi(randomSongIndex)
+	rlJson[randomSong].Do()
+
 }
 
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
