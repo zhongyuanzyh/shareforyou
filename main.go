@@ -293,7 +293,10 @@ func (j *Job) Do() {
 
 func init() {
 	go workerPool.Run()
-	ticker1 := time.NewTicker(10 * time.Minute)
+}
+
+func main() {
+	ticker1 := time.NewTicker(24 * time.Hour)
 	defer ticker1.Stop()
 	go func(t *time.Ticker) {
 		for {
@@ -301,9 +304,7 @@ func init() {
 			dailyRecommend()
 		}
 	}(ticker1)
-}
 
-func main() {
 	http.HandleFunc("/mpx", youtubeMp3)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/mpx", youtubeMp3)
@@ -327,7 +328,7 @@ func (r *recommendList) Do() {
 	titleTrimmed := strings.Trim(r.Title, " ...")
 	title := fmt.Sprintf("/data/youtube-dl/%s.mp3", titleTrimmed)
 	//这个title不对，因为太长导致后面有...，从而无法使用，另想办法;上面的方法解决
-	rCmd := exec.Command("youtube-dl", "--embed-thumbnail", "-x", "--audio-format", "mp3", r.URL, "-o", title)
+	rCmd := exec.Command("youtube-dl", "-x", "--audio-format", "mp3", r.URL, "-o", title)
 	fmt.Printf("the command string is :%s ", rCmd.String())
 	out, err := rCmd.CombinedOutput()
 	if err != nil {
@@ -345,7 +346,6 @@ func dailyRecommend() {
 	randomSongIndex := fmt.Sprintf("%2v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(20))
 	randomSong, _ := strconv.Atoi(randomSongIndex)
 	rlJson[randomSong].Do()
-
 }
 
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
