@@ -293,6 +293,14 @@ func (j *Job) Do() {
 
 func init() {
 	go workerPool.Run()
+	ticker1 := time.NewTicker(10 * time.Minute)
+	defer ticker1.Stop()
+	go func(t *time.Ticker) {
+		for {
+			<-t.C
+			dailyRecommend()
+		}
+	}(ticker1)
 }
 
 func main() {
