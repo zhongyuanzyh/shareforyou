@@ -89,8 +89,21 @@
             }
         }
     </script>
+    <script>
+        function recommend() {
+            $.ajax({
+                type: "GET",
+                url: "/recommend",
+                success: function (data) {
+                    console.log(data);
+                    $("#dailyRecommend span")[0].innerHTML = data.song_name;
+                    $("#mp3player").attr('src',data.song_path);
+                },
+            });
+        }
+    </script>
 </head>
-<body>
+<body onload="recommend()">
     <div id="nav">
         <a href="https://www.youtube.com" target="_blank">Youtube</a>
         <a href="https://www.facebook.com" target="_blank">Facebook</a>
@@ -148,6 +161,15 @@
             </div>
         </div>
     <div id="separator"></div>
+        <div id="dailyRecommend">
+            <h1>Daily Recommendation</h1>
+            <p>Song Name: <span id="recommendItem"></span></p>
+            <audio id="mp3player" controls="controls" style="display: block" controlsList="noDownload">
+                <source src="/i/song.ogg" type="audio/ogg" />
+                <source src="/i/song.mp3" type="audio/mpeg" />
+            </audio>
+        </div>
+        <div id="separator"></div>
     <div id="text">
         <h1>ShareForYou</h1>
         <p>By using our converter, you can easily convert YouTube videos to mp3 (audio) or mp4 (video) files and download them for free-this service is suitable for computers, tablets and mobile devices.</p>

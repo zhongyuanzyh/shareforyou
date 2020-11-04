@@ -90,8 +90,21 @@
             }
         }
     </script>
+    <script>
+        function recommend() {
+            $.ajax({
+                type: "GET",
+                url: "/recommend",
+                success: function (data) {
+                    console.log(data);
+                    $("#dailyRecommend span")[0].innerHTML = data.song_name;
+                    $("#mp3player").attr('src',data.song_path);
+                },
+            });
+        }
+    </script>
 </head>
-<body>
+<body onload="recommend()">
     <div id="nav">
         <a href="https://www.yahoo.co.jp/" target="_blank">Yahoo</a>
         <a href="https://www.google.co.jp/" target="_blank">Google</a>
@@ -149,6 +162,15 @@
             </div>
         </div>
     <div id="separator"></div>
+        <div id="dailyRecommend">
+            <h1>毎日のおすすめ</h1>
+            <p>おすすめの曲: <span id="recommendItem"></span></p>
+            <audio id="mp3player" controls="controls" style="display: block" controlsList="noDownload">
+                <source src="/i/song.ogg" type="audio/ogg" />
+                <source src="/i/song.mp3" type="audio/mpeg" />
+            </audio>
+        </div>
+        <div id="separator"></div>
     <div id="text">
         <h1>ShareForYou</h1>
         <p>コンバーターを使用すると、YouTubeビデオをmp3（オーディオ）またはmp4（ビデオ）ファイルに簡単に変換して無料でダウンロードできます。このサービスは、コンピューター、タブレット、モバイルデバイスに適しています。</p>
