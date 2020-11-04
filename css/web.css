@@ -29,7 +29,6 @@ body{
     margin-top: 1px;
     margin-right: 2px;
 }
-
 #logo{
     background-color: white;
 }
@@ -219,6 +218,12 @@ body{
     height: 5px;
     margin: 40px auto;
 }
+
+#mp3player{
+    margin-left: auto;
+    margin-right: auto;
+}
+
 #text {
     color: #222121;
     font-size: 15px;

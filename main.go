@@ -129,6 +129,7 @@ type MediaInfo struct {
 	ErrCode          int       `json:"error_code"`
 	OriginalURL      string    `json:"original_url"`
 	RecommendSong    string    `json:"recommend_song"`
+	RecommendSongTitle string `json:"recommend_song_title"`
 }
 
 //FileDownloader 文件下载器
@@ -387,6 +388,7 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 
 	mi.ErrCode = ConvertSuccess
 	mi.RecommendSong = getDailyRecommendSong()
+	mi.RecommendSongTitle = strings.Trim(getDailyRecommendSong(),"/youtube-dl/")
 	_ = r.ParseForm()
 	youtubeURL := r.Form.Get("video")
 	isYT := strings.Contains(youtubeURL, "https://www.youtube.com/")
