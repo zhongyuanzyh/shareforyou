@@ -384,7 +384,7 @@ func getDailyRecommendSong(w http.ResponseWriter, r *http.Request) {
 	for scanner.Scan() {
 		dailyRecommendResponse.SongName = scanner.Text()
 	}
-	dailyRecommendResponse.SongName = "/youtube-dl/" + dailyRecommendResponse.SongName
+	dailyRecommendResponse.SongPath ="/youtube-dl/" + dailyRecommendResponse.SongName
 	rsp, _ := json.MarshalIndent(dailyRecommendResponse, "", "")
 	w.Header().Add("Content-Type", "application/json; charset=utf-8")
 	_, _ = w.Write(rsp)
