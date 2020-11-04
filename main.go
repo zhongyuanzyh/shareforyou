@@ -326,7 +326,7 @@ type match struct {
 	Phrase string `json:"phrase"`
 }
 
-func (r *recommendList) Do() {
+func (r *recommendList) Do() error {
 	titleTrimmed := strings.Trim(r.Title, " ...")
 	title := fmt.Sprintf("/data/youtube-dl/%s.mp3", titleTrimmed)
 	//这个title不对，因为太长导致后面有...，从而无法使用，另想办法;上面的方法解决
@@ -336,7 +336,9 @@ func (r *recommendList) Do() {
 	if err != nil {
 		log.Printf("download daily recommend song failed:%v\n", err)
 		log.Printf("the command error message: %s\n ", string(out))
+		return err
 	}
+	return nil
 }
 
 func dailyRecommend() {
@@ -351,7 +353,11 @@ func dailyRecommend() {
 	_ = json.Unmarshal(rl, &rlJson)
 	randomSongIndex := fmt.Sprintf("%2v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(20))
 	randomSong, _ := strconv.Atoi(randomSongIndex)
-	rlJson[randomSong].Do()
+	err = rlJson[randomSong].Do()
+	if err !=nil{
+		log.Println("youtube-dl command extract daily recommend song mp3 file failed.")
+		return
+	}
 	file, _ := os.OpenFile("/data/youtube-dl/search/dailyrecommend/songrecord.txt", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0664)
 	defer func() {
 		_ = file.Close()
