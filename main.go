@@ -329,7 +329,6 @@ type match struct {
 func (r *recommendList) Do() error {
 	titleTrimmed := strings.Trim(r.Title, " ...")
 	title := fmt.Sprintf("/data/youtube-dl/%s.mp3", titleTrimmed)
-	//这个title不对，因为太长导致后面有...，从而无法使用，另想办法;上面的方法解决
 	rCmd := exec.Command("youtube-dl", "-x", "--audio-format", "mp3", r.URL, "-o", title)
 	log.Printf("the command string is :%s\n", rCmd.String())
 	out, err := rCmd.CombinedOutput()
@@ -377,6 +376,7 @@ func getDailyRecommendSong() (songName string) {
 	for scanner.Scan() {
 		songName = scanner.Text()
 	}
+	songName = "/youtube-dl/"+songName
 	return songName
 }
 
