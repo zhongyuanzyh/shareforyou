@@ -123,13 +123,13 @@ type FormatInfo struct {
 }
 
 type MediaInfo struct {
-	VideoInfo        VideoInfo `json:"video_info"`
-	DownloadUrl      string    `json:"download_url"`
-	DownloadProgress float64   `json:"download_progress"`
-	ErrCode          int       `json:"error_code"`
-	OriginalURL      string    `json:"original_url"`
-	RecommendSong    string    `json:"recommend_song"`
-	RecommendSongTitle string `json:"recommend_song_title"`
+	VideoInfo          VideoInfo `json:"video_info"`
+	DownloadUrl        string    `json:"download_url"`
+	DownloadProgress   float64   `json:"download_progress"`
+	ErrCode            int       `json:"error_code"`
+	OriginalURL        string    `json:"original_url"`
+	RecommendSong      string    `json:"recommend_song"`
+	RecommendSongTitle string    `json:"recommend_song_title"`
 }
 
 //FileDownloader 文件下载器
@@ -308,9 +308,11 @@ func main() {
 		}
 	}(ticker1)
 
+	http.HandleFunc("/recommend", getDailyRecommendSong)
 	http.HandleFunc("/mpx", youtubeMp3)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/mpx", youtubeMp3)
+	mux.HandleFunc("/recommend", getDailyRecommendSong)
 	_ = http.ListenAndServe(":8888", mux)
 }
 
@@ -346,7 +348,7 @@ func dailyRecommend() {
 	randomListIndex := fmt.Sprintf("%2v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(10))
 	randomList := strings.Replace(fmt.Sprintf("/data/youtube-dl/search/output%2v", randomListIndex), " ", "", -1)
 	rl, err := ioutil.ReadFile(randomList)
-	if err != nil{
+	if err != nil {
 		log.Println("cannot get random song list file,this process will exit.")
 		return
 	}
@@ -354,7 +356,7 @@ func dailyRecommend() {
 	randomSongIndex := fmt.Sprintf("%2v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(20))
 	randomSong, _ := strconv.Atoi(randomSongIndex)
 	err = rlJson[randomSong].Do()
-	if err !=nil{
+	if err != nil {
 		log.Println("youtube-dl command extract daily recommend song mp3 file failed.")
 		return
 	}
@@ -362,23 +364,30 @@ func dailyRecommend() {
 	defer func() {
 		_ = file.Close()
 	}()
-	titleTrimmed := strings.Trim(rlJson[randomSong].Title," ...")
+	titleTrimmed := strings.Trim(rlJson[randomSong].Title, " ...")
 	title := fmt.Sprintf("%s.mp3", titleTrimmed)
-	_, _ = file.WriteString(title+"\n")
+	_, _ = file.WriteString(title + "\n")
 	_ = file.Sync()
 }
 
-func getDailyRecommendSong() (songName string) {
+func getDailyRecommendSong(w http.ResponseWriter, r *http.Request) {
+	type dailyRecommend struct {
+		SongName string `json:"song_name"`
+		SongPath string `json:"song_path"`
+	}
+	var dailyRecommendResponse dailyRecommend
 	file, _ := os.Open("/data/youtube-dl/search/dailyrecommend/songrecord.txt")
 	defer func() {
 		_ = file.Close()
 	}()
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		songName = scanner.Text()
+		dailyRecommendResponse.SongName = scanner.Text()
 	}
-	songName = "/youtube-dl/"+songName
-	return songName
+	dailyRecommendResponse.SongName = "/youtube-dl/" + dailyRecommendResponse.SongName
+	rsp, _ := json.MarshalIndent(dailyRecommendResponse, "", "")
+	w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	_, _ = w.Write(rsp)
 }
 
 func youtubeMp3(w http.ResponseWriter, r *http.Request) {
@@ -387,8 +396,6 @@ func youtubeMp3(w http.ResponseWriter, r *http.Request) {
 	//var cmd *exec.Cmd
 
 	mi.ErrCode = ConvertSuccess
-	mi.RecommendSong = getDailyRecommendSong()
-	mi.RecommendSongTitle = strings.Trim(getDailyRecommendSong(),"/youtube-dl/")
 	_ = r.ParseForm()
 	youtubeURL := r.Form.Get("video")
 	isYT := strings.Contains(youtubeURL, "https://www.youtube.com/")

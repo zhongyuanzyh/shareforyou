@@ -96,7 +96,8 @@
            url: "/recommend",
            success: function (data) {
               console.log(data);
-               $("#recommendItem")[0].innerHTML = data.item;
+               $("#dailyRecommend span")[0].innerHTML = data.song_name;
+               $("#mp3player").attr('src',data.song_path);
            },
             });
         }
