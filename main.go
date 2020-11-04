@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"crypto/sha256"
 	"encoding/json"
 	"log"
@@ -15,7 +16,6 @@ import (
 	"sync"
 	"time"
 	"unsafe"
-	"bufio"
 
 	//"encoding/hex"
 	"errors"
@@ -128,7 +128,7 @@ type MediaInfo struct {
 	DownloadProgress float64   `json:"download_progress"`
 	ErrCode          int       `json:"error_code"`
 	OriginalURL      string    `json:"original_url"`
-	RecommendSong string `json:"recommend_song"`
+	RecommendSong    string    `json:"recommend_song"`
 }
 
 //FileDownloader 文件下载器
@@ -348,24 +348,24 @@ func dailyRecommend() {
 	randomSongIndex := fmt.Sprintf("%2v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(20))
 	randomSong, _ := strconv.Atoi(randomSongIndex)
 	rlJson[randomSong].Do()
-	file,_ :=os.OpenFile("/data/youtube-dl/search/dailyrecommend/songrecord.txt",os.O_RDWR | os.O_APPEND | os.O_CREATE, 0664)
+	file, _ := os.OpenFile("/data/youtube-dl/search/dailyrecommend/songrecord.txt", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0664)
 	defer func() {
 		_ = file.Close()
 	}()
-	_,_ =file.WriteString(rlJson[randomSong].Title)
+	_, _ = file.WriteString(rlJson[randomSong].Title)
 	_ = file.Sync()
 }
 
-func getDailyRecommendSong() (songName string){
-	file,_ :=os.Open("/data/youtube-dl/search/dailyrecommend/songrecord.txt")
+func getDailyRecommendSong() (songName string) {
+	file, _ := os.Open("/data/youtube-dl/search/dailyrecommend/songrecord.txt")
 	defer func() {
-		_ =file.Close()
+		_ = file.Close()
 	}()
-	scanner :=bufio.NewScanner(file)
-	for scanner.Scan(){
-		songName=scanner.Text()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		songName = scanner.Text()
 	}
-	songName = songName +".mp3"
+	songName = songName + ".mp3"
 	return songName
 }
 
