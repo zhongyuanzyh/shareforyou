@@ -352,7 +352,9 @@ func dailyRecommend() {
 	defer func() {
 		_ = file.Close()
 	}()
-	_, _ = file.WriteString(rlJson[randomSong].Title)
+	titleTrimmed := strings.Trim(rlJson[randomSong].Title," ...")
+	title := fmt.Sprintf("%s.mp3", titleTrimmed)
+	_, _ = file.WriteString(title+"\n")
 	_ = file.Sync()
 }
 
@@ -365,7 +367,6 @@ func getDailyRecommendSong() (songName string) {
 	for scanner.Scan() {
 		songName = scanner.Text()
 	}
-	songName = songName + ".mp3"
 	return songName
 }
 
