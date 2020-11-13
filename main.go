@@ -310,9 +310,11 @@ func main() {
 
 	http.HandleFunc("/recommend", getDailyRecommendSong)
 	http.HandleFunc("/mpx", youtubeMp3)
+	http.HandleFunc("/songs",rewindSongs)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/mpx", youtubeMp3)
 	mux.HandleFunc("/recommend", getDailyRecommendSong)
+	mux.HandleFunc("/songs",rewindSongs)
 	_ = http.ListenAndServe(":8888", mux)
 }
 
@@ -366,7 +368,8 @@ func dailyRecommend() {
 	}()
 	titleTrimmed := strings.Trim(rlJson[randomSong].Title, " ...")
 	title := fmt.Sprintf("%s.mp3", titleTrimmed)
-	_, _ = file.WriteString(title + "\n")
+	timeToday := time.Now().Format("2006-01-02")
+	_, _ = file.WriteString(timeToday + "\t" + title + "\n")
 	_ = file.Sync()
 }
 
@@ -384,8 +387,45 @@ func getDailyRecommendSong(w http.ResponseWriter, r *http.Request) {
 	for scanner.Scan() {
 		dailyRecommendResponse.SongName = scanner.Text()
 	}
-	dailyRecommendResponse.SongPath ="/youtube-dl/" + dailyRecommendResponse.SongName
+	timeToday := time.Now().Format("2006-01-02")
+	dailyRecommendResponse.SongName = strings.TrimLeft(dailyRecommendResponse.SongName, timeToday)
+	dailyRecommendResponse.SongName = strings.TrimSpace(dailyRecommendResponse.SongName)
+	dailyRecommendResponse.SongPath = "/youtube-dl/" + dailyRecommendResponse.SongName
 	rsp, _ := json.MarshalIndent(dailyRecommendResponse, "", "")
+	w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	_, _ = w.Write(rsp)
+}
+
+type SongsList struct {
+	NumberofSongs int          `json:"number_of_songs"`
+	Songs         []SongDetail `json:"song_detail"`
+}
+type SongDetail struct {
+	SongDate string `json:"song_date"`
+	SongName string `json:"song_name"`
+}
+
+var songsList SongsList
+
+func rewindSongs(w http.ResponseWriter, r *http.Request) {
+	file, _ := os.Open("/data/youtube-dl/search/dailyrecommend/songrecord2.txt")
+	defer func() {
+		_ = file.Close()
+	}()
+	scanner := bufio.NewScanner(file)
+	var songs [][]string
+	for scanner.Scan() {
+		songTmp := strings.Split(scanner.Text())
+		songs = append(songs, songTmp)
+	}
+	songsList.NumberofSongs = len(songs)
+	for k, v := range songs {
+		for i, j := range v {
+			songsList.Songs[k].SongDate = i
+			songsList.Songs[k].SongName = j
+		}
+	}
+	rsp, _ := json.MarshalIndent(songsList, "", "")
 	w.Header().Add("Content-Type", "application/json; charset=utf-8")
 	_, _ = w.Write(rsp)
 }
