@@ -405,7 +405,7 @@ type SongDetail struct {
 	SongName string `json:"song_name"`
 }
 
-var songsList SongsList
+var songsList *SongsList
 
 func rewindSongs(w http.ResponseWriter, r *http.Request) {
 	file, _ := os.Open("/data/youtube-dl/search/dailyrecommend/songrecord2.txt")
