@@ -421,8 +421,13 @@ func rewindSongs(w http.ResponseWriter, r *http.Request) {
 		}
 		count++
 	}
-	songsList.Songs = make([]SongDetail,count + 5)
-	scanner := bufio.NewScanner(file)
+	songsList.Songs = make([]SongDetail,count)
+	file1, _ := os.Open("/data/youtube-dl/search/dailyrecommend/songrecord2.txt")
+	defer func() {
+		_ = file1.Close()
+	}()
+	scanner := bufio.NewScanner(file1)
+	songsList.NumberofSongs = count
 	i := 0
 	for scanner.Scan() {
 		songTmp := strings.Split(scanner.Text(),"\t")
