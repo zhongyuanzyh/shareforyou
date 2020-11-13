@@ -412,18 +412,23 @@ func rewindSongs(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		_ = file.Close()
 	}()
-	scanner := bufio.NewScanner(file)
-	var songs [][]string
-	for scanner.Scan() {
-		songTmp := strings.Split(scanner.Text())
-		songs = append(songs, songTmp)
-	}
-	songsList.NumberofSongs = len(songs)
-	for k, v := range songs {
-		for i, j := range v {
-			songsList.Songs[k].SongDate = i
-			songsList.Songs[k].SongName = j
+	fd:=bufio.NewReader(file)
+	count :=0
+	for {
+		_,err := fd.ReadString('\n')
+		if err!= nil{
+			break
 		}
+		count++
+	}
+	songsList.Songs = make([]SongDetail,count + 5)
+	scanner := bufio.NewScanner(file)
+	i := 0
+	for scanner.Scan() {
+		songTmp := strings.Split(scanner.Text(),"\t")
+		songsList.Songs[i].SongDate = songTmp[0]
+		songsList.Songs[i].SongName = songTmp[1]
+		i++
 	}
 	rsp, _ := json.MarshalIndent(songsList, "", "")
 	w.Header().Add("Content-Type", "application/json; charset=utf-8")
