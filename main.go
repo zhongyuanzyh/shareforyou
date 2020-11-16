@@ -431,11 +431,11 @@ func rewindSongs(w http.ResponseWriter, r *http.Request) {
 	i := 0
 	for scanner.Scan() {
 		songTmp := strings.Split(scanner.Text(),"\t")
-		songsList.Songs[i].SongDate = songTmp[0]
-		songsList.Songs[i].SongName = songTmp[1]
+		*songsList.Songs[i].SongDate = songTmp[0]
+		*songsList.Songs[i].SongName = songTmp[1]
 		i++
 	}
-	rsp, _ := json.MarshalIndent(songsList, "", "")
+	rsp, _ := json.MarshalIndent(*songsList, "", "")
 	w.Header().Add("Content-Type", "application/json; charset=utf-8")
 	_, _ = w.Write(rsp)
 }
