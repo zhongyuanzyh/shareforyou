@@ -18,7 +18,7 @@ th, td {
 }
 
 html {
-    font-family: 'helvetica neue', helvetica, arial, sans-serif;
+    font-family: verdana, arial, sans-serif;
 }
 
 thead th, tfoot th {
@@ -53,9 +53,9 @@ thead th, tfoot th, tfoot td {
 }
 
 tbody tr:nth-child(odd) {
-    background-color: #ff33cc;
+    background-color: #b5cfd2;
 }
 
 tbody tr:nth-child(even) {
-    background-color: #e495e4;
+    background-color: #dcddc0;
 }
