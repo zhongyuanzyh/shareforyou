@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="shareforyou.online往期回顾，免费提供youtube音频、视频下载，支持pc、iPhone、Android、平板">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <title>往期回顾</title>
+    <script>
+        function getOldDaysPlayLists() {
+            $.ajax({
+                type: 'GET',
+                url: "/songs",
+                contentType: "application/json;cherset=utf-8",
+                dataType: "json",
+                success: function (data){
+                $('.table_node').empty();
+            //取出后端传过来的list值
+            var chargeRuleLogs = data.song_details;
+            //对list值进行遍历
+            $.each(chargeRuleLogs, function (index, n) {
+                var rowTr = document.createElement('tr');
+                //找到html的tr节点
+                rowTr.className = "tr_node";
+                //将要展示的信息写入页面
+                rowTr.innerHTML = "<td>" + chargeRuleLogs[index].song_date + "</td>"
+                    + "<td>" + chargeRuleLogs[index].song_name + "</td>";
+                //将信息追加
+                $(".table_node").append(rowTr)
+            });
+        }
+        });
+        }
+    </script>
+</head>
+<body onload="getOldDaysPlayLists()">
+<table>
+    <thead>
+    <tr>
+        <th>推荐日期</th>
+        <th>推荐曲目</th>
+    </tr>
+    </thead>
+
+    <tbody class="table_node">
+    <tr class="tr_node" >
+        <!--动态载入数据-->
+    </tr>
+    <!-- more data -->
+    </tbody>
+    </table>
+    </body>
+</html>

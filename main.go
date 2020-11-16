@@ -398,7 +398,7 @@ func getDailyRecommendSong(w http.ResponseWriter, r *http.Request) {
 
 type SongsList struct {
 	NumberofSongs int          `json:"number_of_songs"`
-	Songs         []SongDetail `json:"song_detail"`
+	Songs         []SongDetail `json:"song_details"`
 }
 type SongDetail struct {
 	SongDate string `json:"song_date"`
