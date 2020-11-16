@@ -405,7 +405,7 @@ type SongDetail struct {
 	SongName string `json:"song_name"`
 }
 
-var songsList *SongsList
+var songsList SongsList
 
 func rewindSongs(w http.ResponseWriter, r *http.Request) {
 	file, _ := os.Open("/data/youtube-dl/search/dailyrecommend/songrecord2.txt")
@@ -421,21 +421,21 @@ func rewindSongs(w http.ResponseWriter, r *http.Request) {
 		}
 		count++
 	}
-	*songsList.Songs = make([]SongDetail,count)
+	songsList.Songs = make([]SongDetail,count)
 	file1, _ := os.Open("/data/youtube-dl/search/dailyrecommend/songrecord2.txt")
 	defer func() {
 		_ = file1.Close()
 	}()
 	scanner := bufio.NewScanner(file1)
-	*songsList.NumberofSongs = count
+	songsList.NumberofSongs = count
 	i := 0
 	for scanner.Scan() {
 		songTmp := strings.Split(scanner.Text(),"\t")
-		*songsList.Songs[i].SongDate = songTmp[0]
-		*songsList.Songs[i].SongName = songTmp[1]
+		songsList.Songs[i].SongDate = songTmp[0]
+		songsList.Songs[i].SongName = songTmp[1]
 		i++
 	}
-	rsp, _ := json.MarshalIndent(*songsList, "", "")
+	rsp, _ := json.MarshalIndent(songsList, "", "")
 	w.Header().Add("Content-Type", "application/json; charset=utf-8")
 	_, _ = w.Write(rsp)
 }
