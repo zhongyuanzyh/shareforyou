@@ -23,7 +23,7 @@ html {
 }
 
 thead th, tfoot th {
-    font-family: 'Rock Salt', cursive;
+    font-family: sans-serif, cursive;
     font-size: larger;
 }
 
