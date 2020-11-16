@@ -387,8 +387,9 @@ func getDailyRecommendSong(w http.ResponseWriter, r *http.Request) {
 	for scanner.Scan() {
 		dailyRecommendResponse.SongName = scanner.Text()
 	}
-	timeToday := time.Now().Format("2006-01-02")
-	dailyRecommendResponse.SongName = strings.TrimLeft(dailyRecommendResponse.SongName, timeToday)
+	//timeToday := time.Now().Format("2006-01-02")
+	tmp := strings.Split(dailyRecommendResponse.SongName,"\t")
+	dailyRecommendResponse.SongName = strings.TrimLeft(dailyRecommendResponse.SongName, tmp[0])
 	dailyRecommendResponse.SongName = strings.TrimSpace(dailyRecommendResponse.SongName)
 	dailyRecommendResponse.SongPath = "/youtube-dl/" + dailyRecommendResponse.SongName
 	rsp, _ := json.MarshalIndent(dailyRecommendResponse, "", "")
