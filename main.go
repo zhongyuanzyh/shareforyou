@@ -310,11 +310,11 @@ func main() {
 
 	http.HandleFunc("/recommend", getDailyRecommendSong)
 	http.HandleFunc("/mpx", youtubeMp3)
-	http.HandleFunc("/songs",rewindSongs)
+	http.HandleFunc("/rewindsongs",rewindSongs)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/mpx", youtubeMp3)
 	mux.HandleFunc("/recommend", getDailyRecommendSong)
-	mux.HandleFunc("/songs",rewindSongs)
+	mux.HandleFunc("/rewindsongs",rewindSongs)
 	_ = http.ListenAndServe(":8888", mux)
 }
 
