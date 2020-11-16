@@ -2,7 +2,7 @@ table {
     table-layout: fixed;
     width: 100%;
     border-collapse: collapse;
-    border: 3px solid #0087cf;
+    border: 3px solid #ADD8E6;
 }
 
 thead th:nth-child(1) {
@@ -49,13 +49,13 @@ thead, tfoot {
 
 thead th, tfoot th, tfoot td {
     background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.5));
-    border: 3px solid #0087cf;
+    border: 3px solid #ADD8E6;
 }
 
 tbody tr:nth-child(odd) {
-    background-color: #0087cf;
+    background-color: #ADD8E6;
 }
 
 tbody tr:nth-child(even) {
-    background-color: #dcddc0;
+    background-color: white;
 }
