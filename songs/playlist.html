@@ -18,7 +18,7 @@
         var currentPage=0;//当前页数
         var startRow=0;//页开始行数
         var endRow=0;//页结束行数
-        var pageSize=2;//每页行数
+        var pageSize=4;//每页行数
 
         // var tby = $( "#table tbody" );
 
@@ -108,6 +108,7 @@
                 gotoPage(pageNum);
             });
             $("#page_prev").on("click","li",function(){
+                //因为进入到前一页就意味着当前页必须减去1，是为了防止当前页码为0
                 --currentPage;
                 if(currentPage===0){
 
