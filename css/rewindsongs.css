@@ -16,6 +16,14 @@ thead th:nth-child(2) {
     width: 50%;
 }
 
+#prev a:hover{
+    background-color: #ADD8E6;
+}
+
+#next a:hover{
+    background-color: #ADD8E6;
+}
+
 th, td {
     padding: 20px;
 }
