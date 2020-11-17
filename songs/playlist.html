@@ -111,8 +111,9 @@
             $("#page_prev").on("click","li",function(){
                 console.log(currentPage);
                 if(currentPage===1){
-
+                    console.log("当前页是1");
                 }else{
+                    console.log("当前页不是1",currentPage);
                     gotoPage(--currentPage);
                 }
             });
