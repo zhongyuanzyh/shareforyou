@@ -11,13 +11,13 @@
     <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js" async></script>
     <title>往期回顾</title>
     <script>
-        var pageTotal=0;//总页数
-        var rowTotal=0;//总行数
-        var currentPage=0;//当前页数
-        var startRow=0;//页开始行数
-        var endRow=0;//页结束行数
-        var pageSize=2;//每页行数
         function getOldDaysPlayLists() {
+            var pageTotal=0;//总页数
+            var rowTotal=0;//总行数
+            var currentPage=0;//当前页数
+            var startRow=0;//页开始行数
+            var endRow=0;//页结束行数
+            var pageSize=2;//每页行数
             $.ajax({
                 type: 'GET',
                 url: "/rewindsongs",
