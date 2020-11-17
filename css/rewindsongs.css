@@ -54,8 +54,10 @@ thead th, tfoot th, tfoot td {
 
 tbody tr:nth-child(odd) {
     background-color: #ADD8E6;
+    height: 30px;
 }
 
 tbody tr:nth-child(even) {
     background-color: white;
+    height: 30px;
 }
