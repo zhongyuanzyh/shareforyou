@@ -106,13 +106,16 @@
         $(function () {
             $("#page_ul").on("click","li",function(){
                 var pageNum=$(this).text();
+                if (pageNum === 1){
+                    document.getElementById("prev").className="disabled";
+                }
                 gotoPage(pageNum);
             });
             $("#page_prev").on("click","li",function(){
                 //因为进入到前一页就意味着当前页必须减去1，是为了防止当前页码为0
                 --currentPage;
                 if(currentPage===0){
-
+                    document.getElementById("prev").className="disabled";
                 }else{
                     gotoPage(currentPage);
                 }
@@ -120,7 +123,7 @@
             $("#page_next").on("click","li",function(){
                 console.log(currentPage);
                 if(currentPage===pageTotal){
-
+                    document.getElementById("next").className="disabled";
                 }else{
                     gotoPage(++currentPage);
                 }
