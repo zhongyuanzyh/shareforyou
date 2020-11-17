@@ -108,7 +108,7 @@
                 console.log(pageNum);
                 gotoPage(pageNum);
             });
-            $("#page_prev li").on("click","li",function(){
+            $("#page_prev").on("click","li",function(){
                 console.log(currentPage);
                 if(currentPage===1){
 
@@ -116,7 +116,7 @@
                     gotoPage(--currentPage);
                 }
             });
-            $("#page_next li").on("click","li",function(){
+            $("#page_next").on("click","li",function(){
                 console.log(currentPage);
                 if(currentPage===pageTotal){
 
