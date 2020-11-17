@@ -6,6 +6,7 @@
     <meta name="description" content="shareforyou.online往期回顾，免费提供youtube音频、视频下载，支持pc、iPhone、Android、平板">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link rel="icon" href="../images/favicon.ico" type="image/x-icon">
+    <!--以下css的加载顺序决定了自己的css是否被bootstrap的覆盖；还有thead不居中的问题，如果内联stylesheet，那优先级最高-->
     <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
     <link href="../css/rewindsongs.css" rel="stylesheet" type="text/css">
     <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
@@ -18,6 +19,9 @@
         var startRow=0;//页开始行数
         var endRow=0;//页结束行数
         var pageSize=2;//每页行数
+
+        var tby = $( "#table tbody" );
+
         function getOldDaysPlayLists() {
             $.ajax({
                 type: 'GET',
@@ -47,7 +51,7 @@
                     currentPage = 1;
                     if (pageTotal === 1){
                         for(var i =0;i <pageSize;i++){
-                            $("#table tbody").append(
+                            tby.append(
                                 $("<tr><td>"+
                                 data.song_details[i].song_date+
                                 "</td><td>"+
@@ -57,7 +61,7 @@
                         }
                     }else {
                         for(var i =0;i <pageSize;i++){
-                            $("#table tbody").append(
+                            tby.append(
                                 $("<tr><td>"+
                                     data.song_details[i].song_date+
                                     "</td><td>"+
@@ -74,6 +78,50 @@
                 }
             });
         }
+        function gotoPage(pageNum){
+            $.ajax({
+                url:"/rewindsongs",
+                type:"GET",
+                dataType:"json",
+                success:function(data){
+                    currentPage=pageNum;
+                    startRow=pageSize*(pageNum-1);
+                    endRow=startRow+pageSize;
+                    endRow=(rowTotal>endRow)?endRow:rowTotal;
+                    tby.empty();
+                    for(var i=startRow;i<endRow;i++){
+                        $("#table tbody").append(
+                            $("<tr><td>"+
+                                data.song_details[i].song_date+
+                                "</td><td>"+
+                                data.song_details[i].song_name+
+                                "</td></tr>")
+                        );
+                    }
+
+                }
+            });
+        }
+        $("#page_ul li").live("click",function(){
+            var pageNum=$(this).text();
+            gotoPage(pageNum);
+        });
+
+        $("#page_prev li").live("click",function(){
+            if(currentPage===1){
+
+            }else{
+                gotoPage(--currentPage);
+            }
+        });
+
+        $("#page_next li").live("click",function(){
+            if(currentPage===pageTotal){
+
+            }else{
+                gotoPage(++currentPage);
+            }
+        })
     </script>
 
 </head>
