@@ -9,7 +9,7 @@ thead th:nth-child(1) {
     width: 50%;
 }
 #page_ul li a:hover{
-    color: red;
+    background-color: #0087cf;
 }
 
 thead th:nth-child(2) {
