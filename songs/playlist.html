@@ -103,22 +103,21 @@
             });
         }
         $(function () {
-            getOldDaysPlayLists();
-
             $("#page_ul").on("click","li",function(){
                 var pageNum=$(this).text();
+                console.log(pageNum);
                 gotoPage(pageNum);
             });
-
             $("#page_prev li").on("click","li",function(){
+                console.log(currentPage);
                 if(currentPage===1){
 
                 }else{
                     gotoPage(--currentPage);
                 }
             });
-
             $("#page_next li").on("click","li",function(){
+                console.log(currentPage);
                 if(currentPage===pageTotal){
 
                 }else{
