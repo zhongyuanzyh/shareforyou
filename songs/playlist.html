@@ -20,7 +20,7 @@
         var endRow=0;//页结束行数
         var pageSize=2;//每页行数
 
-        var tby = $( "#table tbody" );
+        // var tby = $( "#table tbody" );
 
         function getOldDaysPlayLists() {
             $.ajax({
@@ -51,7 +51,7 @@
                     currentPage = 1;
                     if (pageTotal === 1){
                         for(var i =0;i <pageSize;i++){
-                            tby.append(
+                            $( "#table tbody" ).append(
                                 $("<tr><td>"+
                                 data.song_details[i].song_date+
                                 "</td><td>"+
@@ -61,7 +61,7 @@
                         }
                     }else {
                         for(var i =0;i <pageSize;i++){
-                            tby.append(
+                            $( "#table tbody" ).append(
                                 $("<tr><td>"+
                                     data.song_details[i].song_date+
                                     "</td><td>"+
@@ -88,7 +88,7 @@
                     startRow=pageSize*(pageNum-1);
                     endRow=startRow+pageSize;
                     endRow=(rowTotal>endRow)?endRow:rowTotal;
-                    tby.empty();
+                    $( "#table tbody" ).empty();
                     for(var i=startRow;i<endRow;i++){
                         $("#table tbody").append(
                             $("<tr><td>"+
