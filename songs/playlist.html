@@ -105,16 +105,14 @@
         $(function () {
             $("#page_ul").on("click","li",function(){
                 var pageNum=$(this).text();
-                console.log("你点击页码是：",pageNum);
                 gotoPage(pageNum);
             });
             $("#page_prev").on("click","li",function(){
-                console.log(currentPage);
-                if(currentPage===1){
-                    console.log("当前页码是1");
+                --currentPage;
+                if(currentPage===0){
+
                 }else{
-                    console.log("当前页不是1，而是：",currentPage);
-                    gotoPage(--currentPage);
+                    gotoPage(currentPage);
                 }
             });
             $("#page_next").on("click","li",function(){
