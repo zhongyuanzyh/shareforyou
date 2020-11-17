@@ -10,34 +10,73 @@
     <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
     <title>往期回顾</title>
     <script>
+        var pageTotal=0;//总页数
+        var rowTotal=0;//总行数
+        var currentPage=0;//当前页数
+        var startRow=0;//页开始行数
+        var endRow=0;//页结束行数
+        var pageSize=2;//每页行数
         function getOldDaysPlayLists() {
             $.ajax({
                 type: 'GET',
                 url: "/rewindsongs",
                 contentType: "application/json;cherset=utf-8",
                 dataType: "json",
-                success: function (data){
-                $('.table_node').empty();
-            //取出后端传过来的list值
-            var chargeRuleLogs = data.song_details;
-            //对list值进行遍历
-            $.each(chargeRuleLogs, function (index, n) {
-                var rowTr = document.createElement('tr');
-                //找到html的tr节点
-                rowTr.className = "tr_node";
-                //将要展示的信息写入页面
-                rowTr.innerHTML = "<td>" + chargeRuleLogs[index].song_date + "</td>"
-                    + "<td>" + chargeRuleLogs[index].song_name + "</td>";
-                //将信息追加
-                $(".table_node").append(rowTr)
+        //         success: function (data){
+        //         $('.table_node').empty();
+        //     //取出后端传过来的list值
+        //     var chargeRuleLogs = data.song_details;
+        //     //对list值进行遍历
+        //     $.each(chargeRuleLogs, function (index, n) {
+        //         var rowTr = document.createElement('tr');
+        //         //找到html的tr节点
+        //         rowTr.className = "tr_node";
+        //         //将要展示的信息写入页面
+        //         rowTr.innerHTML = "<td>" + chargeRuleLogs[index].song_date + "</td>"
+        //             + "<td>" + chargeRuleLogs[index].song_name + "</td>";
+        //         //将信息追加
+        //         $(".table_node").append(rowTr)
+        //     });
+        // }
+                success:function (data) {
+                    rowTotal=data.length;
+                    pageTotal=Math.ceil(rowTotal/pageSize);
+                    currentPage = 1;
+                    if (pageTotal === 1){
+                        for(var i =0;i <pageSize;i++){
+                            $("#table tbody").append(
+                                $("<tr><td>"+
+                                data.song_details[i].song_date+
+                                "</td><td>"+
+                                data.song_details[i].song_name+
+                                "</td></tr>")
+                            )
+                        }
+                    }else {
+                        for(var i =0;i <pageSize;i++){
+                            $("#table tbody").append(
+                                $("<tr><td>"+
+                                    data.song_details[i].song_date+
+                                    "</td><td>"+
+                                    data.song_details[i].song_name+
+                                    "</td></tr>")
+                            )
+                        }
+                        for(var i=1;i<pageTotal+1;i++){
+                            $("#page_ul").append(
+                                $("<li><a href='#'>"+i+"</a><li>")
+                            );
+                        }
+                    }
+                }
             });
         }
-        });
-        }
     </script>
+
 </head>
 <body onload="getOldDaysPlayLists()">
-<table>
+<div>
+<table id="table">
     <thead>
     <tr>
         <th>推荐日期</th>
@@ -52,5 +91,25 @@
     <!-- more data -->
     </tbody>
     </table>
-    </body>
+</div>
+<nav align="center" id="page_nav">
+    <ul class="pagination" id="page_prev">
+        <li id="prev">
+            <a href="#" aria-label="Previous">
+                <span aria-hidden="true">«</span>
+            </a>
+        </li>
+    </ul>
+    <ul class="pagination" id="page_ul">
+
+    </ul>
+    <ul class="pagination" id="page_next">
+        <li id="next">
+            <a href="#" aria-label="Next">
+                <span aria-hidden="true">»</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+</body>
 </html>
