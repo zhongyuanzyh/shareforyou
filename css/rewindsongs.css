@@ -70,3 +70,13 @@ tbody tr:nth-child(odd) {
 tbody tr:nth-child(even) {
     background-color: white;
 }
+
+#page_nav {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+#page_nav .pagination {
+    margin: 20px 10px;
+}
