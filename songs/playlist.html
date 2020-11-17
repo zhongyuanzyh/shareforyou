@@ -103,6 +103,8 @@
             });
         }
         $(function () {
+            getOldDaysPlayLists();
+
             $("#page_ul").on("click","li",function(){
                 var pageNum=$(this).text();
                 gotoPage(pageNum);
