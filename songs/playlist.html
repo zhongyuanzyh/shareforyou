@@ -102,12 +102,12 @@
                 }
             });
         }
-        $("#page_ul li").live("click",function(){
+        $("#page_ul").on("click","li",function(){
             var pageNum=$(this).text();
             gotoPage(pageNum);
         });
 
-        $("#page_prev li").live("click",function(){
+        $("#page_prev li").on("click","li",function(){
             if(currentPage===1){
 
             }else{
@@ -115,7 +115,7 @@
             }
         });
 
-        $("#page_next li").live("click",function(){
+        $("#page_next li").on("click","li",function(){
             if(currentPage===pageTotal){
 
             }else{
