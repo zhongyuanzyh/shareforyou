@@ -42,6 +42,7 @@
                 success:function (data) {
                     rowTotal=data.length;
                     pageTotal=Math.ceil(rowTotal/pageSize);
+                    console.log(rowTotal,pageTotal)
                     currentPage = 1;
                     if (pageTotal === 1){
                         for(var i =0;i <pageSize;i++){
