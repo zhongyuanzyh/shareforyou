@@ -12,6 +12,12 @@
     <title>往期回顾</title>
     <script>
         function getOldDaysPlayLists() {
+            var pageTotal=0;//总页数
+            var rowTotal=0;//总行数
+            var currentPage=0;//当前页数
+            var startRow=0;//页开始行数
+            var endRow=0;//页结束行数
+            var pageSize=2;//每页行数
             $.ajax({
                 type: 'GET',
                 url: "/rewindsongs",
@@ -34,13 +40,7 @@
         //     });
         // }
                 success:function (data) {
-                    var pageTotal=0;//总页数
-                    var rowTotal=0;//总行数
-                    var currentPage=0;//当前页数
-                    var startRow=0;//页开始行数
-                    var endRow=0;//页结束行数
-                    var pageSize=2;//每页行数
-                    rowTotal=data.length;
+                    rowTotal=data.number_of_songs;
                     pageTotal=Math.ceil(rowTotal/pageSize);
                     console.log(rowTotal,pageTotal);
                     currentPage = 1;
