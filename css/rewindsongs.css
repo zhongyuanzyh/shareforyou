@@ -7,10 +7,12 @@ table {
 
 thead th:nth-child(1) {
     width: 50%;
+    align-content: center;
 }
 
 thead th:nth-child(2) {
     width: 50%;
+    align-content: center;
 }
 
 th, td {
