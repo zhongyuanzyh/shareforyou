@@ -102,25 +102,27 @@
                 }
             });
         }
-        $("#page_ul").on("click","li",function(){
-            var pageNum=$(this).text();
-            gotoPage(pageNum);
-        });
+        $(function () {
+            $("#page_ul").on("click","li",function(){
+                var pageNum=$(this).text();
+                gotoPage(pageNum);
+            });
 
-        $("#page_prev li").on("click","li",function(){
-            if(currentPage===1){
+            $("#page_prev li").on("click","li",function(){
+                if(currentPage===1){
 
-            }else{
-                gotoPage(--currentPage);
-            }
-        });
+                }else{
+                    gotoPage(--currentPage);
+                }
+            });
 
-        $("#page_next li").on("click","li",function(){
-            if(currentPage===pageTotal){
+            $("#page_next li").on("click","li",function(){
+                if(currentPage===pageTotal){
 
-            }else{
-                gotoPage(++currentPage);
-            }
+                }else{
+                    gotoPage(++currentPage);
+                }
+            })
         })
     </script>
 
