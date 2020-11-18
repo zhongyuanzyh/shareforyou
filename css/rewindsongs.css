@@ -6,16 +6,18 @@ table {
 }
 
 thead th:nth-child(1) {
-    width: 50%;
+    width: 40%;
 }
 #page_ul li a:hover{
     background-color: #ADD8E6;
 }
 
 thead th:nth-child(2) {
-    width: 50%;
+    width: 40%;
 }
-
+thead th:nth-child(3) {
+    width: 20%;
+}
 #prev a:hover{
     background-color: #ADD8E6;
 }

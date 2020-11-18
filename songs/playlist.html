@@ -56,9 +56,10 @@
                             $( "#table tbody" ).append(
                                 $("<tr><td>"+
                                 data.song_details[i].song_date+
-                                "</td><td>"+
-                                data.song_details[i].song_name+
-                                "</td></tr>")
+                                    "</td><td><audio id=\"playBox\" controls>" +
+                                    "<source src="+"/youtube-dl/"+data.song_details[i].song_name+"type=\"audio\/mp3\">"+
+                                    "<source src="+"/youtube-dl/"+data.song_details[i].song_name+"type=\"audio\/ogg\">"+
+                                    "</audio></td></tr>")
                             )
                         }
                     }else {
@@ -68,7 +69,10 @@
                                     data.song_details[i].song_date+
                                     "</td><td>"+
                                     data.song_details[i].song_name+
-                                    "</td></tr>")
+                                    "</td><td><audio id=\"playBox\" controls>" +
+                                    "<source src="+"/youtube-dl/"+data.song_details[i].song_name+"type=\"audio\/mp3\">"+
+                                    "<source src="+"/youtube-dl/"+data.song_details[i].song_name+"type=\"audio\/ogg\">"+
+                                    "</audio></td></tr>")
                             )
                         }
                         for(var i=1;i<pageTotal+1;i++){
@@ -101,7 +105,10 @@
                                 data.song_details[i].song_date+
                                 "</td><td>"+
                                 data.song_details[i].song_name+
-                                "</td></tr>")
+                                "</td><td><audio id=\"playBox\" controls>" +
+                                "<source src="+"/youtube-dl/"+data.song_details[i].song_name+"type=\"audio\/mp3\">"+
+                                "<source src="+"/youtube-dl/"+data.song_details[i].song_name+"type=\"audio\/ogg\">"+
+                                "</audio></td></tr>")
                         );
                     }
 
@@ -149,6 +156,7 @@
     <tr>
         <th style="text-align: center">推荐日期</th>
         <th style="text-align: center">推荐曲目</th>
+        <th style="text-align: center">试听</th>
     </tr>
     </thead>
 
