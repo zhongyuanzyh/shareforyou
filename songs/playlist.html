@@ -111,6 +111,7 @@
         function selectChange(){
             var perNum = $("#perPage").val();
             console.log(perNum);
+            console.log("selected的值类型是：",typeof perNum);
             pageSize = perNum;
             $("#page_ul").empty();
             $( "#table tbody" ).empty();
