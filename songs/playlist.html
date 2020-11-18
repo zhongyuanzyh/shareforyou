@@ -19,7 +19,7 @@
         var currentPage=0;//当前页数
         var startRow=0;//页开始行数
         var endRow=0;//页结束行数
-        var pageSize=4;//每页行数
+        var pageSize=3;//每页行数
 
         // var tby = $( "#table tbody" );
 
@@ -46,13 +46,13 @@
         //     });
         // }
                 success:function (data) {
-                    pageSize = ps
+                    ps = pageSize;
                     rowTotal=data.number_of_songs;
-                    pageTotal=Math.ceil(rowTotal/pageSize);
+                    pageTotal=Math.ceil(rowTotal/ps);
                     console.log(rowTotal,pageTotal);
                     currentPage = 1;
                     if (pageTotal === 1){
-                        for(var i =0;i <pageSize;i++){
+                        for(var i =0;i <ps;i++){
                             $( "#table tbody" ).append(
                                 $("<tr><td>"+
                                 data.song_details[i].song_date+
@@ -62,7 +62,7 @@
                             )
                         }
                     }else {
-                        for(var i =0;i <pageSize;i++){
+                        for(var i =0;i <ps;i++){
                             $( "#table tbody" ).append(
                                 $("<tr><td>"+
                                     data.song_details[i].song_date+
@@ -107,6 +107,7 @@
         function selectChange(){
             var perNum = this.value;
             console.log(perNum);
+            pageSize = perNum;
             getOldDaysPlayLists(perNum);
         }
         $(function () {
@@ -156,9 +157,9 @@
     <label for="perPage">条数</label>
     <div class="pagination">
         <select id="perPage" class="form-control" onchange="selectChange()">
-            <option value="5" selected>5</option>
-            <option value="10">10</option>
-            <option value="15">15</option>
+            <option value="2" selected>2</option>
+            <option value="4">4</option>
+            <option value="6">6</option>
         </select>
     </div>
 
