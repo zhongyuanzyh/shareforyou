@@ -124,6 +124,10 @@
                 }else{
                     gotoPage(++currentPage);
                 }
+            });
+            $(".pagination").on("click","select",function () {
+                var selectedNum=$(this).text();
+                console.log(selectedNum)
             })
         })
     </script>
