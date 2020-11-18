@@ -109,7 +109,8 @@
             });
         }
         function selectChange(){
-            var perNum = $("#perPage").val();
+            // var perNum = $("#perPage").val();
+            var perNum = $(this).text();
             console.log(perNum);
             pageSize = perNum;
             $("#page_ul").empty();
