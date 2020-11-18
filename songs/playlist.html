@@ -23,7 +23,7 @@
 
         // var tby = $( "#table tbody" );
 
-        function getOldDaysPlayLists() {
+        function getOldDaysPlayLists(ps) {
             $.ajax({
                 type: 'GET',
                 url: "/rewindsongs",
@@ -46,6 +46,7 @@
         //     });
         // }
                 success:function (data) {
+                    pageSize = ps
                     rowTotal=data.number_of_songs;
                     pageTotal=Math.ceil(rowTotal/pageSize);
                     console.log(rowTotal,pageTotal);
@@ -103,6 +104,11 @@
                 }
             });
         }
+        function selectChange(){
+            var perNum = this.value;
+            console.log(perNum);
+            getOldDaysPlayLists(perNum);
+        }
         $(function () {
             $("#page_ul").on("click","li",function(){
                 var pageNum=$(this).text();
@@ -124,10 +130,6 @@
                 }else{
                     gotoPage(++currentPage);
                 }
-            });
-            $(".pagination").on("click","select",function () {
-                var selectedNum=$(this).text();
-                console.log(selectedNum)
             })
         })
     </script>
@@ -153,7 +155,7 @@
 <nav align="right" id="page_nav">
     <label for="perPage">条数</label>
     <div class="pagination">
-        <select id="perPage" class="form-control">
+        <select id="perPage" class="form-control" onchange="selectChange()">
             <option value="5" selected>5</option>
             <option value="10">10</option>
             <option value="15">15</option>
