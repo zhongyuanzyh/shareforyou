@@ -87,8 +87,12 @@
                 dataType:"json",
                 success:function(data){
                     currentPage=pageNum;
+                    console.log("当前页码是：",currentPage);
                     startRow=pageSize*(pageNum-1);
+                    console.log("起始行是：",startRow);
+                    console.log("全局pagesize是：",pageSize);
                     endRow=startRow+pageSize;
+                    console.log("结束行是：",endRow);
                     endRow=(rowTotal>endRow)?endRow:rowTotal;
                     $( "#table tbody" ).empty();
                     for(var i=startRow;i<endRow;i++){
