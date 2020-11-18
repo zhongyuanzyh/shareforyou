@@ -108,6 +108,7 @@
             var perNum = $("#perPage").val();
             console.log(perNum);
             pageSize = perNum;
+            $("#page_ul").empty();
             $( "#table tbody" ).empty();
             getOldDaysPlayLists(perNum);
         }
