@@ -298,15 +298,29 @@ func init() {
 	go workerPool.Run()
 }
 
+func cronDownload(){
+	for {
+		now := time.Now()
+		nextTime := now.Add(time.Minute * 30)
+		nextTime = time.Date(nextTime.Year(),nextTime.Month(),nextTime.Day(),nextTime.Hour(),nextTime.Minute(),0,0,nextTime.Location())
+		tik := time.NewTicker(nextTime.Sub(now))
+		defer tik.Stop()
+		<- tik.C
+		log.Printf("dailyRecommend execution time is:%s\n",nextTime.Format("2006-01-02 15:04:05"))
+		dailyRecommend()
+	}
+}
+
 func main() {
-	ticker1 := time.NewTicker(24 * time.Hour)
+/*	ticker1 := time.NewTicker(24 * time.Hour)
 	defer ticker1.Stop()
 	go func(t *time.Ticker) {
 		for {
 			<-t.C
 			dailyRecommend()
 		}
-	}(ticker1)
+	}(ticker1)*/
+	go cronDownload()
 
 	http.HandleFunc("/recommend", getDailyRecommendSong)
 	http.HandleFunc("/mpx", youtubeMp3)
