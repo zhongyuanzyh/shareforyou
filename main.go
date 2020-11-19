@@ -301,8 +301,8 @@ func init() {
 func cronDownload(){
 	for {
 		now := time.Now()
-		nextTime := now.Add(time.Minute * 30)
-		nextTime = time.Date(nextTime.Year(),nextTime.Month(),nextTime.Day(),nextTime.Hour(),nextTime.Minute(),0,0,nextTime.Location())
+		nextTime := now.Add(time.Hour * 24)
+		nextTime = time.Date(nextTime.Year(),nextTime.Month(),nextTime.Day(),0,0,0,0,nextTime.Location())
 		tik := time.NewTicker(nextTime.Sub(now))
 		defer tik.Stop()
 		<- tik.C
