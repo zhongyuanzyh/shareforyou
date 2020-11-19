@@ -82,3 +82,16 @@ tbody tr:nth-child(even) {
 #page_nav .pagination {
     margin: 20px 5px;
 }
+
+.pagination #pg_ul li:first-child a {
+    border-left-width: 1px;
+    -webkit-border-radius: 3px 0 0 3px;
+    -moz-border-radius: 3px 0 0 3px;
+    border-radius: 3px 0 0 3px;
+}
+
+.pagination #pg_ul li:last-child a {
+    -webkit-border-radius: 0 3px 3px 0;
+    -moz-border-radius: 0 3px 3px 0;
+    border-radius: 0 3px 3px 0;
+}
