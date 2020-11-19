@@ -423,7 +423,7 @@ type SongDetail struct {
 var songsList SongsList
 
 func rewindSongs(w http.ResponseWriter, r *http.Request) {
-	file, _ := os.Open("/data/youtube-dl/search/dailyrecommend/songrecord2.txt")
+	file, _ := os.Open("/data/youtube-dl/search/dailyrecommend/songrecord.txt")
 	defer func() {
 		_ = file.Close()
 	}()
@@ -437,7 +437,7 @@ func rewindSongs(w http.ResponseWriter, r *http.Request) {
 		count++
 	}
 	songsList.Songs = make([]SongDetail,count)
-	file1, _ := os.Open("/data/youtube-dl/search/dailyrecommend/songrecord2.txt")
+	file1, _ := os.Open("/data/youtube-dl/search/dailyrecommend/songrecord.txt")
 	defer func() {
 		_ = file1.Close()
 	}()
